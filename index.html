@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>leshy</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <style>
     *, *::before, *::after {
       box-sizing: border-box;
@@ -12,8 +15,10 @@
     }
 
     body {
-      background: #0d0d0d;
-      color: #e8e8e8;
+      background: url('leshy.jpg') repeat;
+      background-size: 300px;
+      image-rendering: pixelated;
+      color: #f0ece4;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       min-height: 100vh;
       display: flex;
@@ -28,6 +33,7 @@
       font-weight: 300;
       letter-spacing: 0.25em;
       text-transform: lowercase;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
     }
 
     .links {
@@ -43,9 +49,11 @@
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem 1rem;
-      border: 1px solid #2a2a2a;
+      border: 1px solid rgba(240, 236, 228, 0.2);
       border-radius: 8px;
-      color: #e8e8e8;
+      color: #f0ece4;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
       text-decoration: none;
       font-size: 0.95rem;
       letter-spacing: 0.03em;
@@ -53,8 +61,8 @@
     }
 
     .links a:hover {
-      border-color: #555;
-      background: #161616;
+      border-color: rgba(240, 236, 228, 0.4);
+      background: rgba(0, 0, 0, 0.7);
     }
 
     .links a svg {
