@@ -38,23 +38,13 @@
     h1 {
       font-size: 3rem;
       font-weight: 300;
-      color: #f0ece4;
-      animation: iridescent 10s ease infinite;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 0, 0, 0.6);
-    }
-
-    @keyframes iridescent {
-      0%   { color: #f0ece4; }
-      20%  { color: #f0dce8; }
-      40%  { color: #e4e0f0; }
-      60%  { color: #dcedf0; }
-      80%  { color: #f0ead8; }
-      100% { color: #f0ece4; }
-    }
-
-    .sparkle {
-      filter: saturate(0.3) brightness(1.4) sepia(0.3);
-      display: inline-block;
+      background: linear-gradient(90deg, #f0ece4, #f2c8d8, #d0c8f0, #b8e0ee, #f0e0b0, #f2c8d8, #f0ece4);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: iridescent 8s ease infinite;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
     }
 
     /* ── shared link styles ───────────────────────────── */
@@ -150,7 +140,7 @@
     document.documentElement.dataset.layout = LAYOUT;
   </script>
 
-  <h1><span class="sparkle">✨</span> l e s h y <span class="sparkle">✨</span></h1>
+  <h1>✦ l e s h y ✦</h1>
 
   <nav class="link-container">
 
