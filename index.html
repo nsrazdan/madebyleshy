@@ -33,6 +33,7 @@
       gap: 3.5rem;
       user-select: none;
       cursor: default;
+      overflow-x: hidden;
     }
 
     .title {
@@ -100,6 +101,10 @@
       display: flex;
       gap: 2.5rem;
       align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 100%;
+      padding: 0 1rem;
     }
 
     [data-layout="grid"] .column {
