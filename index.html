@@ -29,10 +29,22 @@
       gap: 3.5rem;
     }
 
+    @keyframes iridescent {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     h1 {
       font-size: 3rem;
       font-weight: 300;
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 0, 0, 0.6);
+      background: linear-gradient(90deg, #f0ece4, #e8b4c8, #b8a9e8, #a4d4e4, #e8d8a4, #e8b4c8, #f0ece4);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: iridescent 8s ease infinite;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
     }
 
     .sparkle {
