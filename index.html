@@ -142,6 +142,27 @@
     [data-layout="list"] .column a {
       width: 300px;
     }
+    /* ── mobile responsive ─────────────────────────────── */
+
+    @media (max-width: 600px) {
+      [data-layout="grid"] .link-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      [data-layout="grid"] .column {
+        display: contents;
+      }
+
+      [data-layout="grid"] .column h2 {
+        display: none;
+      }
+
+      [data-layout="grid"] .column a {
+        width: 300px;
+      }
+    }
   </style>
 </head>
 <body>
