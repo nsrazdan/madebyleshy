@@ -32,12 +32,22 @@
       cursor: default;
     }
 
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+      cursor: default;
+    }
+
     h1 {
       font-size: 3rem;
       font-weight: 300;
       color: #f0ece4;
-      user-select: none;
-      cursor: default;
+    }
+
+    .sparkle {
+      font-size: 1.8rem;
     }
 
     /* ── shared link styles ───────────────────────────── */
@@ -154,7 +164,11 @@
     document.documentElement.dataset.layout = LAYOUT;
   </script>
 
-  <h1>✨ l e s h y ✨</h1>
+  <div class="title">
+    <span class="sparkle">✨</span>
+    <h1>l e s h y</h1>
+    <span class="sparkle">✨</span>
+  </div>
 
   <nav class="link-container">
 
