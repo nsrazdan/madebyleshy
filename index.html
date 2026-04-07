@@ -27,6 +27,8 @@
       justify-content: flex-start;
       padding-top: 18vh;
       gap: 3.5rem;
+      user-select: none;
+      cursor: default;
     }
 
     @keyframes iridescent {
@@ -38,13 +40,34 @@
     h1 {
       font-size: 3rem;
       font-weight: 300;
-      background: linear-gradient(90deg, #f0ece4, #f2c8d8, #d0c8f0, #b8e0ee, #f0e0b0, #f2c8d8, #f0ece4);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+      user-select: none;
+      cursor: default;
+    }
+
+    .title-text, .sparkle {
+      background: linear-gradient(90deg, #f0ece4, #f0d8e6, #dcd4f0, #cce8f0, #f0e8c8, #f0d8e6, #f0ece4);
       background-size: 300% 100%;
+      animation: iridescent 8s ease infinite;
+    }
+
+    .title-text {
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      animation: iridescent 8s ease infinite;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+    }
+
+    .sparkle {
+      width: 1.5rem;
+      height: 1.5rem;
+      flex-shrink: 0;
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C52 38,62 48,100 50C62 52,52 62,50 100C48 62,38 52,0 50C38 48,48 38,50 0Z'/%3E%3Cpath d='M78 10C79 20,82 23,92 24C82 25,79 28,78 38C77 28,74 25,64 24C74 23,77 20,78 10Z'/%3E%3Cpath d='M22 62C23 70,26 73,34 74C26 75,23 78,22 86C21 78,18 75,10 74C18 73,21 70,22 62Z'/%3E%3C/svg%3E");
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0C52 38,62 48,100 50C62 52,52 62,50 100C48 62,38 52,0 50C38 48,48 38,50 0Z'/%3E%3Cpath d='M78 10C79 20,82 23,92 24C82 25,79 28,78 38C77 28,74 25,64 24C74 23,77 20,78 10Z'/%3E%3Cpath d='M22 62C23 70,26 73,34 74C26 75,23 78,22 86C21 78,18 75,10 74C18 73,21 70,22 62Z'/%3E%3C/svg%3E");
+      mask-size: contain;
+      mask-repeat: no-repeat;
     }
 
     /* ── shared link styles ───────────────────────────── */
@@ -63,6 +86,7 @@
       font-size: 0.95rem;
       letter-spacing: 0.03em;
       transition: border-color 0.2s, background 0.2s, color 0.2s;
+      cursor: pointer;
     }
 
     .column a:hover {
@@ -140,7 +164,7 @@
     document.documentElement.dataset.layout = LAYOUT;
   </script>
 
-  <h1>✦ l e s h y ✦</h1>
+  <h1><span class="sparkle"></span><span class="title-text"> l e s h y </span><span class="sparkle"></span></h1>
 
   <nav class="link-container">
 
