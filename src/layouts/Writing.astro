@@ -4,9 +4,10 @@ import Base from './Base.astro';
 interface Props {
   title: string;
   date: Date;
+  description: string;
 }
 
-const { title, date } = Astro.props;
+const { title, date, description } = Astro.props;
 
 const formatted = date.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -14,7 +15,7 @@ const formatted = date.toLocaleDateString('en-US', {
   day: 'numeric',
 });
 ---
-<Base title={`${title} - leshy`} bodyClass="post-page">
+<Base title={`${title} - leshy`} description={description} bodyClass="post-page">
 
   <nav class="post-nav">
     <a href="/writings/">&larr; writings</a>
