@@ -211,6 +211,24 @@ h1 {
   color: rgba(240, 236, 228, 0.4);
 }
 
+/* ── site footer ──────────────────────────────────── */
+
+.site-footer {
+  margin-top: auto;
+  padding-bottom: 2rem;
+}
+
+.site-footer a {
+  color: rgba(240, 236, 228, 0.3);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.site-footer a:hover {
+  color: rgba(240, 236, 228, 0.6);
+}
+
 /* ── post page overrides ──────────────────────────── */
 
 body.post-page {
