@@ -67,8 +67,9 @@ import Base from '../layouts/Base.astro';
 
   </nav>
 
-  <!-- Spotify embed — replace ARTIST_ID with your Spotify artist ID -->
-  <!-- To get it: go to your Spotify artist page → Share → Copy link → the ID is the part after /artist/ -->
+  {/* Spotify embed — uncomment and replace ARTIST_ID when ready */}
+  {/* To get it: go to your Spotify artist page → Share → Copy link → the ID is the part after /artist/ */}
+  {/*
   <div class="spotify-embed">
     <iframe
       style="border-radius:12px"
@@ -81,12 +82,14 @@ import Base from '../layouts/Base.astro';
       loading="lazy"
     ></iframe>
   </div>
+  */}
 
+  {/* Email signup — uncomment and replace MAILCHIMP_FORM_ACTION_URL and b_MAILCHIMP_ID when ready */}
+  {/*
   <div class="email-signup">
     <h2>stay in touch</h2>
     <form action="MAILCHIMP_FORM_ACTION_URL" method="post" target="_blank">
       <input type="email" name="EMAIL" placeholder="your email" required />
-      <!-- bot protection -->
       <div style="position:absolute;left:-5000px" aria-hidden="true">
         <input type="text" name="b_MAILCHIMP_ID" tabindex="-1" value="" />
       </div>
@@ -94,5 +97,6 @@ import Base from '../layouts/Base.astro';
     </form>
     <p class="email-note">no spam, just updates on new music and writings</p>
   </div>
+  */}
 
 </Base>

@@ -9,6 +9,7 @@ const posts = (await getCollection('writings', ({ data }) => !data.draft))
 
   <nav class="post-nav">
     <a href="/">&larr; home</a>
+    <a href="/rss.xml" class="rss-link" target="_blank">rss</a>
   </nav>
 
   <div class="title">
@@ -16,6 +17,7 @@ const posts = (await getCollection('writings', ({ data }) => !data.draft))
   </div>
 
   <div class="writings-list">
+    {posts.length === 0 && <p style="color: rgba(240, 236, 228, 0.5); text-align: center;">nothing here yet</p>}
     {posts.map((post) => (
       <article>
         <a href={`/writings/${post.slug}/`}>

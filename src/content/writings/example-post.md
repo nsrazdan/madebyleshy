@@ -2,6 +2,7 @@
 title: "on the forest and the machine"
 date: 2026-04-12
 description: "thoughts on nature, procedural generation, and the spaces between"
+draft: true
 ---
 
 There is something about the forest that resists computation. Not because it is complex — though it is — but because its complexity is of a kind that feels alien to the grid.
