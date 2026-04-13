@@ -1,0 +1,32 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+}
+
+const { title, date } = Astro.props;
+
+const formatted = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+<Base title={`${title} - leshy`} bodyClass="post-page">
+
+  <nav class="post-nav">
+    <a href="/writings/">&larr; writings</a>
+  </nav>
+
+  <header class="post-header">
+    <h1>{title}</h1>
+    <time datetime={date.toISOString().slice(0, 10)}>{formatted}</time>
+  </header>
+
+  <div class="prose">
+    <slot />
+  </div>
+
+</Base>
