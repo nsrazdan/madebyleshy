@@ -136,6 +136,81 @@ h1 {
   fill: currentColor;
 }
 
+/* ── spotify embed ────────────────────────────────── */
+
+.spotify-embed {
+  width: 100%;
+  max-width: 400px;
+  padding: 0 1rem;
+}
+
+/* ── email signup ─────────────────────────────────── */
+
+.email-signup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+}
+
+.email-signup h2 {
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: #f0ece4;
+}
+
+.email-signup form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.email-signup input[type="email"] {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(240, 236, 228, 0.2);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  color: #f0ece4;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 220px;
+}
+
+.email-signup input[type="email"]::placeholder {
+  color: rgba(240, 236, 228, 0.4);
+}
+
+.email-signup input[type="email"]:focus {
+  border-color: rgba(240, 236, 228, 0.5);
+}
+
+.email-signup button {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(240, 236, 228, 0.2);
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  color: #f0ece4;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.email-signup button:hover {
+  border-color: rgba(240, 236, 228, 0.4);
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.email-note {
+  font-size: 0.85rem;
+  color: rgba(240, 236, 228, 0.4);
+}
+
 /* ── post page overrides ──────────────────────────── */
 
 body.post-page {

@@ -34,5 +34,7 @@ const {
 </head>
 <body class={bodyClass}>
   <slot />
+  <!-- Cloudflare Web Analytics — replace TOKEN with your beacon token from https://dash.cloudflare.com/ -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "TOKEN"}'></script>
 </body>
 </html>
