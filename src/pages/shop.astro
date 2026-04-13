@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const products = (await getCollection('shop', ({ data }) => !data.draft && !data.soldOut))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const soldOutProducts = (await getCollection('shop', ({ data }) => !data.draft && data.soldOut))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="shop - leshy" description="merch and digital products by leshy" bodyClass="shop-page">
+
+  <nav class="post-nav">
+    <a href="/">&larr; home</a>
+  </nav>
+
+  <div class="title">
+    <h1>s h o p</h1>
+  </div>
+
+  <div class="shop-grid">
+    {products.length === 0 && <p style="color: rgba(240, 236, 228, 0.5); text-align: center;">nothing here yet</p>}
+    {products.map(async (product) => {
+      const { Content } = await product.render();
+      return (
+        <a href={product.data.stripeLink} target="_blank" rel="noopener noreferrer" class="product-card">
+          {product.data.image && <img src={product.data.image} alt={product.data.title} class="product-image" />}
+          <div class="product-info">
+            <div class="product-title">{product.data.title}</div>
+            <div class="product-meta">
+              <span class="product-price">{product.data.price}</span>
+              <span class="product-type">{product.data.type}</span>
+            </div>
+            <div class="product-description"><Content /></div>
+          </div>
+        </a>
+      );
+    })}
+  </div>
+
+  {soldOutProducts.length > 0 && (
+    <div class="shop-grid sold-out-section">
+      <p style="color: rgba(240, 236, 228, 0.4); font-size: 1rem; width: 100%; text-align: center;">sold out</p>
+      {soldOutProducts.map(async (product) => {
+        const { Content } = await product.render();
+        return (
+          <div class="product-card sold-out">
+            {product.data.image && <img src={product.data.image} alt={product.data.title} class="product-image" />}
+            <div class="product-info">
+              <div class="product-title">{product.data.title}</div>
+              <div class="product-meta">
+                <span class="product-price">{product.data.price}</span>
+                <span class="product-type">{product.data.type}</span>
+              </div>
+              <div class="product-description"><Content /></div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )}
+
+</Base>

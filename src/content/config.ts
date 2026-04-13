@@ -10,4 +10,18 @@ const writings = defineCollection({
   }),
 });
 
-export const collections = { writings };
+const shop = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    price: z.string(),
+    type: z.enum(['digital', 'physical']),
+    image: z.string().optional(),
+    stripeLink: z.string(),
+    soldOut: z.boolean().default(false),
+    draft: z.boolean().default(false),
+    order: z.number().default(0),
+  }),
+});
+
+export const collections = { writings, shop };
