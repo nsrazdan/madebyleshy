@@ -1,37 +1,25 @@
 /* ── theme variables ──────────────────────────────── */
 
 :root {
-  --text: #f0ece4;
-  --text-muted: rgba(240, 236, 228, 0.7);
-  --text-faint: rgba(240, 236, 228, 0.5);
-  --text-ghost: rgba(240, 236, 228, 0.3);
-  --bg-card: rgba(0, 0, 0, 0.35);
-  --bg-card-hover: rgba(0, 0, 0, 0.7);
-  --bg-code: rgba(0, 0, 0, 0.4);
-  --border: rgba(240, 236, 228, 0.2);
-  --border-hover: rgba(240, 236, 228, 0.4);
-  --border-faint: rgba(240, 236, 228, 0.15);
-  --link: #1da0c3;
-  --link-hover: #f0ece4;
-  --bg-overlay: transparent;
-  --bg-blockquote-border: rgba(240, 236, 228, 0.3);
+  --bg: #000;
+  --text: #fff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-faint: rgba(255, 255, 255, 0.4);
+  --border: rgba(255, 255, 255, 0.2);
+  --border-hover: rgba(255, 255, 255, 0.6);
+  --link: #fff;
+  --link-hover: rgba(255, 255, 255, 0.6);
 }
 
 [data-theme="light"] {
-  --text: #2a2520;
-  --text-muted: rgba(42, 37, 32, 0.65);
-  --text-faint: rgba(42, 37, 32, 0.45);
-  --text-ghost: rgba(42, 37, 32, 0.25);
-  --bg-card: rgba(255, 255, 255, 0.65);
-  --bg-card-hover: rgba(255, 255, 255, 0.85);
-  --bg-code: rgba(0, 0, 0, 0.07);
-  --border: rgba(42, 37, 32, 0.15);
-  --border-hover: rgba(42, 37, 32, 0.3);
-  --border-faint: rgba(42, 37, 32, 0.1);
-  --link: #0e7490;
-  --link-hover: #2a2520;
-  --bg-overlay: rgba(255, 255, 255, 0.55);
-  --bg-blockquote-border: rgba(42, 37, 32, 0.2);
+  --bg: #fff;
+  --text: #000;
+  --text-muted: rgba(0, 0, 0, 0.6);
+  --text-faint: rgba(0, 0, 0, 0.4);
+  --border: rgba(0, 0, 0, 0.2);
+  --border-hover: rgba(0, 0, 0, 0.6);
+  --link: #000;
+  --link-hover: rgba(0, 0, 0, 0.6);
 }
 
 /* ── reset ────────────────────────────────────────── */
@@ -43,9 +31,7 @@
 }
 
 body {
-  background: url('/leshy.jpg') repeat;
-  background-size: 300px;
-  image-rendering: pixelated;
+  background: var(--bg);
   color: var(--text);
   font-family: 'VT323', monospace;
   min-height: 100vh;
@@ -53,35 +39,22 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-top: 18vh;
-  gap: 3.5rem;
-  user-select: none;
-  cursor: default;
+  padding-top: 20vh;
+  gap: 3rem;
   overflow-x: hidden;
-  position: relative;
+  transition: background 0.2s, color 0.2s;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: var(--bg-overlay);
-  pointer-events: none;
-  z-index: 0;
-  transition: background 0.3s;
+a {
+  color: var(--text);
 }
 
-body > * {
-  position: relative;
-  z-index: 1;
-}
+/* ── title ────────────────────────────────────────── */
 
 .title {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  user-select: none;
-  cursor: default;
 }
 
 h1 {
@@ -101,69 +74,26 @@ h1 {
   top: 1rem;
   right: 1rem;
   z-index: 100;
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
+  background: none;
   border: 1px solid var(--border);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.1rem;
-  transition: border-color 0.2s, background 0.2s;
-  padding: 0;
+  font-size: 1rem;
   color: var(--text);
+  padding: 0;
   line-height: 1;
+  transition: border-color 0.2s;
 }
 
 .theme-toggle:hover {
   border-color: var(--border-hover);
-  background: var(--bg-card-hover);
 }
 
-/* ── shared link styles ───────────────────────────── */
-
-.column a {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  color: var(--text);
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
-  text-decoration: none;
-  font-size: 1.15rem;
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
-  cursor: pointer;
-}
-
-.column a:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card-hover);
-}
-
-.column a svg {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
-}
-
-/* ── brand hover colors ───────────────────────────── */
-
-.column a.instagram:hover { color: #E1306C; }
-.column a.tiktok:hover    { color: #ff0050; }
-.column a.x:hover         { color: #1d9bf0; }
-.column a.youtube:hover   { color: #ff0000; }
-.column a.bandcamp:hover  { color: #1da0c3; }
-.column a.spotify:hover   { color: #1db954; }
-.column a.twitch:hover    { color: #9146ff; }
-
-/* ── grid layout ──────────────────────────────────── */
+/* ── links ────────────────────────────────────────── */
 
 .link-container {
   display: flex;
@@ -178,44 +108,74 @@ h1 {
 .column {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 200px;
 }
 
 .column h2 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 300;
   letter-spacing: 0.08em;
-  color: var(--text);
+  color: var(--text-muted);
+  text-transform: lowercase;
+  margin-bottom: 0.25rem;
 }
+
+.column a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.15rem;
+  transition: color 0.15s;
+  cursor: pointer;
+}
+
+.column a:hover {
+  color: var(--text-muted);
+}
+
+.column a svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ── brand hover colors ───────────────────────────── */
+
+.column a.instagram:hover { color: #E1306C; }
+.column a.tiktok:hover    { color: #ff0050; }
+.column a.x:hover         { color: #1d9bf0; }
+.column a.youtube:hover   { color: #ff0000; }
+.column a.bandcamp:hover  { color: #1da0c3; }
+.column a.spotify:hover   { color: #1db954; }
+.column a.twitch:hover    { color: #9146ff; }
 
 /* ── writings link ────────────────────────────────── */
 
 .writings-link {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
   color: var(--text);
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
   text-decoration: none;
   font-size: 1.15rem;
-  transition: border-color 0.2s, background 0.2s;
+  transition: color 0.15s;
   cursor: pointer;
 }
 
 .writings-link:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card-hover);
+  color: var(--text-muted);
 }
 
 .writings-link svg {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   fill: currentColor;
 }
 
@@ -233,15 +193,15 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   padding: 0 1rem;
 }
 
 .email-signup h2 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 300;
   letter-spacing: 0.08em;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
 .email-signup form {
@@ -252,19 +212,17 @@ h1 {
 .email-signup input[type="email"] {
   font-family: 'VT323', monospace;
   font-size: 1.1rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.4rem 0.6rem;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
+  background: transparent;
   color: var(--text);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.15s;
   width: 220px;
 }
 
 .email-signup input[type="email"]::placeholder {
-  color: var(--text-ghost);
+  color: var(--text-faint);
 }
 
 .email-signup input[type="email"]:focus {
@@ -274,24 +232,21 @@ h1 {
 .email-signup button {
   font-family: 'VT323', monospace;
   font-size: 1.1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
+  background: transparent;
   color: var(--text);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.15s;
 }
 
 .email-signup button:hover {
   border-color: var(--border-hover);
-  background: var(--bg-card-hover);
 }
 
 .email-note {
   font-size: 0.85rem;
-  color: var(--text-ghost);
+  color: var(--text-faint);
 }
 
 /* ── site footer ──────────────────────────────────── */
@@ -302,27 +257,27 @@ h1 {
 }
 
 .site-footer a {
-  color: var(--text-ghost);
+  color: var(--text-faint);
   text-decoration: none;
   font-size: 0.85rem;
-  transition: color 0.2s;
+  transition: color 0.15s;
 }
 
 .site-footer a:hover {
-  color: var(--text-faint);
+  color: var(--text);
 }
 
 /* ── shop ─────────────────────────────────────────── */
 
 body.shop-page {
-  padding-top: 8vh;
+  padding-top: 10vh;
   gap: 2rem;
 }
 
 .shop-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
   justify-content: center;
   max-width: 90ch;
   width: 100%;
@@ -331,25 +286,21 @@ body.shop-page {
 
 .product-card {
   display: block;
-  width: 280px;
+  width: 260px;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
   text-decoration: none;
   color: var(--text);
   overflow: hidden;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.15s;
   cursor: pointer;
 }
 
 .product-card:hover {
   border-color: var(--border-hover);
-  background: var(--bg-card-hover);
 }
 
 .product-card.sold-out {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: default;
 }
 
@@ -357,40 +308,36 @@ body.shop-page {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  image-rendering: pixelated;
 }
 
 .product-info {
-  padding: 1rem;
+  padding: 0.75rem;
 }
 
 .product-title {
-  font-size: 1.2rem;
-  margin-bottom: 0.4rem;
+  font-size: 1.15rem;
+  margin-bottom: 0.3rem;
 }
 
 .product-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .product-price {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text);
 }
 
 .product-type {
   font-size: 0.8rem;
-  color: var(--text-ghost);
-  border: 1px solid var(--border-faint);
-  border-radius: 8px;
-  padding: 0.1rem 0.5rem;
+  color: var(--text-faint);
 }
 
 .product-description {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
   line-height: 1.5;
 }
@@ -406,7 +353,7 @@ body.shop-page {
 /* ── post page overrides ──────────────────────────── */
 
 body.post-page {
-  padding-top: 8vh;
+  padding-top: 10vh;
   gap: 2rem;
 }
 
@@ -420,7 +367,7 @@ body.post-page {
   color: var(--text-faint);
   text-decoration: none;
   font-size: 1rem;
-  transition: color 0.2s;
+  transition: color 0.15s;
 }
 
 .post-nav a:hover {
@@ -432,7 +379,7 @@ body.post-page {
 }
 
 .post-header h1 {
-  font-size: 2.2rem;
+  font-size: 2rem;
   margin-bottom: 0.5rem;
 }
 
@@ -444,28 +391,24 @@ body.post-page {
 /* ── prose styles ─────────────────────────────────── */
 
 .prose {
-  max-width: 90ch;
+  max-width: 72ch;
   width: 100%;
-  padding: 2rem 2.5rem;
+  padding: 2rem 1.5rem;
   line-height: 1.7;
   font-size: 1.1rem;
   user-select: text;
   cursor: text;
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--border);
-  border-radius: 16px;
 }
 
 .prose h2 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 300;
   margin-top: 2rem;
   margin-bottom: 0.5rem;
 }
 
 .prose h3 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 300;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
@@ -476,21 +419,21 @@ body.post-page {
 }
 
 .prose a {
-  color: var(--link);
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 3px;
-  transition: color 0.2s;
+  transition: color 0.15s;
 }
 
 .prose a:hover {
-  color: var(--link-hover);
+  color: var(--text-muted);
 }
 
 .prose blockquote {
-  border-left: 3px solid var(--bg-blockquote-border);
+  border-left: 2px solid var(--border);
   padding-left: 1rem;
   margin: 1.5rem 0;
-  opacity: 0.85;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -504,9 +447,8 @@ body.post-page {
 }
 
 .prose code {
-  background: var(--bg-code);
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+  background: var(--border);
+  padding: 0.1rem 0.3rem;
   font-size: 0.95em;
 }
 
@@ -519,40 +461,35 @@ body.post-page {
 /* ── writings index ───────────────────────────────── */
 
 body.writings-page {
-  padding-top: 8vh;
+  padding-top: 10vh;
   gap: 2rem;
 }
 
 .writings-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.25rem;
   width: 100%;
-  max-width: 90ch;
+  max-width: 72ch;
   padding: 0 1rem;
 }
 
 .writings-list article a {
   display: block;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--bg-card);
-  backdrop-filter: blur(4px);
+  padding: 0.6rem 0;
   text-decoration: none;
   color: var(--text);
-  transition: border-color 0.2s, background 0.2s;
+  transition: color 0.15s;
   cursor: pointer;
+  border-bottom: 1px solid var(--border);
 }
 
 .writings-list article a:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card-hover);
+  color: var(--text-muted);
 }
 
 .writings-list article .post-title {
-  font-size: 1.3rem;
-  margin-bottom: 0.25rem;
+  font-size: 1.2rem;
 }
 
 .writings-list article time {
@@ -562,6 +499,6 @@ body.writings-page {
 
 .writings-list article .post-description {
   color: var(--text-muted);
-  font-size: 1rem;
-  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  margin-top: 0.15rem;
 }
