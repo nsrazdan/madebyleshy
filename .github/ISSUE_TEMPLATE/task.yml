@@ -1,0 +1,39 @@
+name: Task
+description: A todo item for the site
+title: "[task] "
+labels: []
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - setup
+        - music
+        - analytics
+        - community
+        - enhancement
+        - bug
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What
+      description: What needs to be done?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: How to complete this task
+    validations:
+      required: false
+  - type: textarea
+    id: files
+    attributes:
+      label: Files
+      description: Which files need to be modified?
+    validations:
+      required: false
