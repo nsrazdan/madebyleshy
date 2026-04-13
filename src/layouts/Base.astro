@@ -17,7 +17,11 @@ const {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="only light" />
+  <meta name="color-scheme" content="light dark" />
+  <script is:inline>
+    const saved = localStorage.getItem('theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+  </script>
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta property="og:title" content={title} />
@@ -33,7 +37,28 @@ const {
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 </head>
 <body class={bodyClass}>
+  <button class="theme-toggle" aria-label="Toggle theme" id="theme-toggle"></button>
   <slot />
+  <script is:inline>
+    const toggle = document.getElementById('theme-toggle');
+    function updateIcon() {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      toggle.textContent = isLight ? '🌙' : '☀️';
+    }
+    updateIcon();
+    toggle.addEventListener('click', () => {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const next = isLight ? 'dark' : 'light';
+      if (next === 'dark') {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.removeItem('theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      }
+      updateIcon();
+    });
+  </script>
   <!-- Cloudflare Web Analytics — replace TOKEN with your beacon token from https://dash.cloudflare.com/ -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "TOKEN"}'></script>
 </body>

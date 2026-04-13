@@ -1,3 +1,41 @@
+/* ── theme variables ──────────────────────────────── */
+
+:root {
+  --text: #f0ece4;
+  --text-muted: rgba(240, 236, 228, 0.7);
+  --text-faint: rgba(240, 236, 228, 0.5);
+  --text-ghost: rgba(240, 236, 228, 0.3);
+  --bg-card: rgba(0, 0, 0, 0.35);
+  --bg-card-hover: rgba(0, 0, 0, 0.7);
+  --bg-code: rgba(0, 0, 0, 0.4);
+  --border: rgba(240, 236, 228, 0.2);
+  --border-hover: rgba(240, 236, 228, 0.4);
+  --border-faint: rgba(240, 236, 228, 0.15);
+  --link: #1da0c3;
+  --link-hover: #f0ece4;
+  --bg-overlay: transparent;
+  --bg-blockquote-border: rgba(240, 236, 228, 0.3);
+}
+
+[data-theme="light"] {
+  --text: #2a2520;
+  --text-muted: rgba(42, 37, 32, 0.65);
+  --text-faint: rgba(42, 37, 32, 0.45);
+  --text-ghost: rgba(42, 37, 32, 0.25);
+  --bg-card: rgba(255, 255, 255, 0.65);
+  --bg-card-hover: rgba(255, 255, 255, 0.85);
+  --bg-code: rgba(0, 0, 0, 0.07);
+  --border: rgba(42, 37, 32, 0.15);
+  --border-hover: rgba(42, 37, 32, 0.3);
+  --border-faint: rgba(42, 37, 32, 0.1);
+  --link: #0e7490;
+  --link-hover: #2a2520;
+  --bg-overlay: rgba(255, 255, 255, 0.55);
+  --bg-blockquote-border: rgba(42, 37, 32, 0.2);
+}
+
+/* ── reset ────────────────────────────────────────── */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -8,7 +46,7 @@ body {
   background: url('/leshy.jpg') repeat;
   background-size: 300px;
   image-rendering: pixelated;
-  color: #f0ece4;
+  color: var(--text);
   font-family: 'VT323', monospace;
   min-height: 100vh;
   display: flex;
@@ -20,6 +58,22 @@ body {
   user-select: none;
   cursor: default;
   overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.3s;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .title {
@@ -33,11 +87,40 @@ body {
 h1 {
   font-size: 3rem;
   font-weight: 300;
-  color: #f0ece4;
+  color: var(--text);
 }
 
 .sparkle {
   font-size: 1.8rem;
+}
+
+/* ── theme toggle ─────────────────────────────────── */
+
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  background: var(--bg-card);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: border-color 0.2s, background 0.2s;
+  padding: 0;
+  color: var(--text);
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 /* ── shared link styles ───────────────────────────── */
@@ -47,10 +130,10 @@ h1 {
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 1rem;
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  color: #f0ece4;
-  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
   text-decoration: none;
   font-size: 1.15rem;
@@ -59,8 +142,8 @@ h1 {
 }
 
 .column a:hover {
-  border-color: rgba(240, 236, 228, 0.4);
-  background: rgba(0, 0, 0, 0.7);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 .column a svg {
@@ -103,7 +186,7 @@ h1 {
   font-size: 1.2rem;
   font-weight: 300;
   letter-spacing: 0.08em;
-  color: #f0ece4;
+  color: var(--text);
 }
 
 /* ── writings link ────────────────────────────────── */
@@ -113,10 +196,10 @@ h1 {
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 1rem;
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  color: #f0ece4;
-  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
   text-decoration: none;
   font-size: 1.15rem;
@@ -125,8 +208,8 @@ h1 {
 }
 
 .writings-link:hover {
-  border-color: rgba(240, 236, 228, 0.4);
-  background: rgba(0, 0, 0, 0.7);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 .writings-link svg {
@@ -158,7 +241,7 @@ h1 {
   font-size: 1.2rem;
   font-weight: 300;
   letter-spacing: 0.08em;
-  color: #f0ece4;
+  color: var(--text);
 }
 
 .email-signup form {
@@ -170,45 +253,45 @@ h1 {
   font-family: 'VT323', monospace;
   font-size: 1.1rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
-  color: #f0ece4;
+  color: var(--text);
   outline: none;
   transition: border-color 0.2s;
   width: 220px;
 }
 
 .email-signup input[type="email"]::placeholder {
-  color: rgba(240, 236, 228, 0.4);
+  color: var(--text-ghost);
 }
 
 .email-signup input[type="email"]:focus {
-  border-color: rgba(240, 236, 228, 0.5);
+  border-color: var(--border-hover);
 }
 
 .email-signup button {
   font-family: 'VT323', monospace;
   font-size: 1.1rem;
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
-  color: #f0ece4;
+  color: var(--text);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .email-signup button:hover {
-  border-color: rgba(240, 236, 228, 0.4);
-  background: rgba(0, 0, 0, 0.7);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 .email-note {
   font-size: 0.85rem;
-  color: rgba(240, 236, 228, 0.4);
+  color: var(--text-ghost);
 }
 
 /* ── site footer ──────────────────────────────────── */
@@ -219,14 +302,14 @@ h1 {
 }
 
 .site-footer a {
-  color: rgba(240, 236, 228, 0.3);
+  color: var(--text-ghost);
   text-decoration: none;
   font-size: 0.85rem;
   transition: color 0.2s;
 }
 
 .site-footer a:hover {
-  color: rgba(240, 236, 228, 0.6);
+  color: var(--text-faint);
 }
 
 /* ── shop ─────────────────────────────────────────── */
@@ -249,20 +332,20 @@ body.shop-page {
 .product-card {
   display: block;
   width: 280px;
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
   text-decoration: none;
-  color: #f0ece4;
+  color: var(--text);
   overflow: hidden;
   transition: border-color 0.2s, background 0.2s;
   cursor: pointer;
 }
 
 .product-card:hover {
-  border-color: rgba(240, 236, 228, 0.4);
-  background: rgba(0, 0, 0, 0.7);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 .product-card.sold-out {
@@ -295,20 +378,20 @@ body.shop-page {
 
 .product-price {
   font-size: 1.1rem;
-  color: #f0ece4;
+  color: var(--text);
 }
 
 .product-type {
   font-size: 0.8rem;
-  color: rgba(240, 236, 228, 0.4);
-  border: 1px solid rgba(240, 236, 228, 0.15);
+  color: var(--text-ghost);
+  border: 1px solid var(--border-faint);
   border-radius: 8px;
   padding: 0.1rem 0.5rem;
 }
 
 .product-description {
   font-size: 0.95rem;
-  color: rgba(240, 236, 228, 0.7);
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -334,14 +417,14 @@ body.post-page {
 }
 
 .post-nav a {
-  color: rgba(240, 236, 228, 0.6);
+  color: var(--text-faint);
   text-decoration: none;
   font-size: 1rem;
   transition: color 0.2s;
 }
 
 .post-nav a:hover {
-  color: #f0ece4;
+  color: var(--text);
 }
 
 .post-header {
@@ -354,7 +437,7 @@ body.post-page {
 }
 
 .post-header time {
-  color: rgba(240, 236, 228, 0.5);
+  color: var(--text-faint);
   font-size: 1rem;
 }
 
@@ -368,9 +451,9 @@ body.post-page {
   font-size: 1.1rem;
   user-select: text;
   cursor: text;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
 }
 
@@ -393,18 +476,18 @@ body.post-page {
 }
 
 .prose a {
-  color: #1da0c3;
+  color: var(--link);
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: color 0.2s;
 }
 
 .prose a:hover {
-  color: #f0ece4;
+  color: var(--link-hover);
 }
 
 .prose blockquote {
-  border-left: 3px solid rgba(240, 236, 228, 0.3);
+  border-left: 3px solid var(--bg-blockquote-border);
   padding-left: 1rem;
   margin: 1.5rem 0;
   opacity: 0.85;
@@ -421,7 +504,7 @@ body.post-page {
 }
 
 .prose code {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--bg-code);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;
   font-size: 0.95em;
@@ -429,7 +512,7 @@ body.post-page {
 
 .prose hr {
   border: none;
-  border-top: 1px solid rgba(240, 236, 228, 0.2);
+  border-top: 1px solid var(--border);
   margin: 2rem 0;
 }
 
@@ -452,19 +535,19 @@ body.writings-page {
 .writings-list article a {
   display: block;
   padding: 1rem 1.25rem;
-  border: 1px solid rgba(240, 236, 228, 0.2);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
   text-decoration: none;
-  color: #f0ece4;
+  color: var(--text);
   transition: border-color 0.2s, background 0.2s;
   cursor: pointer;
 }
 
 .writings-list article a:hover {
-  border-color: rgba(240, 236, 228, 0.4);
-  background: rgba(0, 0, 0, 0.7);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
 .writings-list article .post-title {
@@ -473,12 +556,12 @@ body.writings-page {
 }
 
 .writings-list article time {
-  color: rgba(240, 236, 228, 0.5);
+  color: var(--text-faint);
   font-size: 0.9rem;
 }
 
 .writings-list article .post-description {
-  color: rgba(240, 236, 228, 0.7);
+  color: var(--text-muted);
   font-size: 1rem;
   margin-top: 0.3rem;
 }
