@@ -1,0 +1,38 @@
+---
+import MusicPractice from '../../../layouts/MusicPractice.astro';
+import LessonTracker from '../../../components/music/LessonTracker';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('lessons');
+  return lessons
+    .filter(l => !l.data.draft)
+    .map(lesson => ({
+      params: { slug: lesson.slug },
+      props: { lesson },
+    }));
+}
+
+const { lesson } = Astro.props;
+const { Content } = await lesson.render();
+---
+<MusicPractice
+  title={`${lesson.data.title.toLowerCase()} - music practice - leshy`}
+  description={lesson.data.description}
+>
+
+  <nav class="music-practice-nav">
+    <a href="/music-practice/lessons/">&larr; lessons</a>
+  </nav>
+
+  <header class="post-header">
+    <h1>{lesson.data.title.toLowerCase()}</h1>
+  </header>
+
+  <div class="prose">
+    <Content />
+  </div>
+
+  <LessonTracker client:only="react" lessonSlug={lesson.slug} />
+
+</MusicPractice>

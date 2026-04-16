@@ -8,8 +8,14 @@
     "new-post": "bash scripts/new-post.sh"
   },
   "dependencies": {
+    "@astrojs/react": "^5.0.3",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
-    "astro": "^5.7.10"
+    "@supabase/supabase-js": "^2.103.2",
+    "astro": "^5.7.10",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "recharts": "^3.8.1",
+    "tone": "^15.1.22"
   }
 }

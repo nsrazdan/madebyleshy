@@ -1,0 +1,902 @@
+/* ── music practice theme additions ──────────────── */
+
+:root {
+  --correct: #2d8a4e;
+  --incorrect: #c53030;
+}
+
+[data-theme="light"] {
+  --correct: #1a7a3a;
+  --incorrect: #b91c1c;
+}
+
+/* ── music practice layout ───────────────────────── */
+
+body.music-practice-page {
+  padding-top: 4rem;
+  padding-bottom: 3rem;
+  gap: 1.5rem;
+  height: auto;
+  min-height: 100vh;
+}
+
+.music-practice-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.music-practice-nav a {
+  color: var(--text-faint);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.15s;
+}
+
+.music-practice-nav a:hover {
+  color: var(--text);
+}
+
+/* ── hub page ────────────────────────────────────── */
+
+.music-practice-hub {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  padding: 0 1rem;
+}
+
+.music-practice-hub .column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 200px;
+}
+
+.music-practice-hub .column h2 {
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: lowercase;
+  margin-bottom: 0.25rem;
+}
+
+.music-practice-hub .column a {
+  display: block;
+  padding: 0.4rem 0;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.15rem;
+  transition: color 0.15s;
+}
+
+.music-practice-hub .column a:hover {
+  color: var(--text-muted);
+}
+
+/* ── exercise list ───────────────────────────────── */
+
+.exercise-list,
+.lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 72ch;
+  padding: 0 1rem;
+}
+
+.exercise-list article a,
+.lesson-list article a {
+  display: block;
+  padding: 0.6rem 0;
+  text-decoration: none;
+  color: var(--text);
+  transition: color 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.exercise-list article a:hover,
+.lesson-list article a:hover {
+  color: var(--text-muted);
+}
+
+.exercise-list .exercise-title,
+.lesson-list .lesson-title {
+  font-size: 1.2rem;
+}
+
+.exercise-list .exercise-meta,
+.lesson-list .lesson-meta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.15rem;
+}
+
+.exercise-list .exercise-category,
+.exercise-list .exercise-difficulty,
+.lesson-list .lesson-category {
+  color: var(--text-faint);
+  font-size: 0.9rem;
+}
+
+.exercise-list .exercise-description,
+.lesson-list .lesson-description {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 0.15rem;
+}
+
+/* ── exercise runner ─────────────────────────────── */
+
+.exercise-container {
+  position: relative;
+  width: 100%;
+  max-width: 72ch;
+  padding: 0 1rem;
+}
+
+/* ── settings ────────────────────────────────────── */
+
+.settings-toggle {
+  position: absolute;
+  top: 0;
+  right: 1rem;
+  font-size: 1.2rem;
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: color 0.15s;
+  line-height: 1;
+}
+
+.settings-toggle:hover,
+.settings-toggle:focus-visible {
+  color: var(--text);
+}
+
+.settings-panel {
+  position: absolute;
+  top: 1.8rem;
+  right: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+  min-width: 200px;
+  max-width: calc(100vw - 2rem);
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.settings-row input[type="checkbox"] {
+  accent-color: var(--text-muted);
+}
+
+.settings-row input[type="number"] {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  width: 3rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  text-align: center;
+}
+
+.settings-row select {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+.exercise-score-tally {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.tally-correct {
+  color: var(--correct);
+}
+
+.tally-total {
+  color: var(--text);
+}
+
+.tally-reset {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  margin-left: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.tally-reset:hover,
+.tally-reset:focus-visible {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.exercise-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.exercise-header h2 {
+  font-size: 1.4rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+}
+
+/* ── answer buttons ──────────────────────────────── */
+
+.answer-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.answer-row {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+.answer-btn {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.9rem;
+  padding: 0.35rem 1rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.answer-btn:hover,
+.answer-btn:focus-visible {
+  border-color: var(--border-hover);
+}
+
+.answer-btn:focus-visible {
+  outline: 2px solid var(--text-muted);
+  outline-offset: 2px;
+}
+
+.answer-btn--correct {
+  border-color: var(--correct);
+  color: var(--correct);
+  background: color-mix(in srgb, var(--correct) 10%, transparent);
+}
+
+.answer-btn--incorrect {
+  border-color: var(--incorrect);
+  color: var(--incorrect);
+  background: color-mix(in srgb, var(--incorrect) 10%, transparent);
+}
+
+.answer-btn--disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* ── exercise result ─────────────────────────────── */
+
+.exercise-result {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.exercise-result .score {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.exercise-result .score-label {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.exercise-result .result-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--border-hover);
+}
+
+/* ── fretboard ───────────────────────────────────── */
+
+.fretboard-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.fretboard-svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.fretboard-string {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+}
+
+.fretboard-string--low {
+  stroke-width: 2;
+}
+
+.fretboard-fret {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.fretboard-nut {
+  stroke: var(--text);
+  stroke-width: 3;
+}
+
+.fretboard-dot {
+  fill: var(--text-faint);
+}
+
+.fretboard-note {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+  transition: fill 0.1s, stroke 0.1s;
+}
+
+.fretboard-note:hover {
+  fill: var(--text-faint);
+}
+
+.fretboard-note--highlighted {
+  fill: var(--text);
+}
+
+.fretboard-note--root {
+  fill: var(--text);
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.fretboard-note--target {
+  fill: var(--text-muted);
+  stroke: var(--text-muted);
+  stroke-width: 2;
+}
+
+.fretboard-note-label {
+  fill: var(--bg);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.fretboard-fret-number {
+  fill: var(--text-faint);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+/* ── play button ─────────────────────────────────── */
+
+.play-btn {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.play-btn:hover,
+.play-btn:focus-visible {
+  border-color: var(--border-hover);
+}
+
+/* ── donate ──────────────────────────────────────── */
+
+.donate-link {
+  color: var(--text-faint);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.15s;
+}
+
+.donate-link:hover {
+  color: var(--text);
+}
+
+/* ── lesson tracker ──────────────────────────────── */
+
+.lesson-tracker {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.lesson-tracker-done {
+  color: var(--correct);
+  font-size: 0.9rem;
+}
+
+/* ── auth panel ─────────────────────────────────── */
+
+.auth-panel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.auth-email {
+  color: var(--text-muted);
+}
+
+.auth-link {
+  color: var(--text-faint);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.auth-link:hover {
+  color: var(--text);
+}
+
+.auth-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.auth-input {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  width: 160px;
+}
+
+.auth-input::placeholder {
+  color: var(--text-faint);
+}
+
+.auth-btn {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.auth-btn:hover {
+  border-color: var(--border-hover);
+}
+
+.auth-toggle {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.auth-toggle:hover {
+  color: var(--text);
+}
+
+.turnstile-widget {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.auth-error {
+  color: var(--incorrect);
+  font-size: 0.85rem;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-message {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── profile ────────────────────────────────────── */
+
+.profile-container {
+  width: 100%;
+  max-width: 72ch;
+  padding: 0 1rem;
+}
+
+.profile-email {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.profile-empty {
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.profile-empty a {
+  color: var(--text-muted);
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.profile-tab {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.profile-tab:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+}
+
+.profile-tab--active {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.profile-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.profile-stat-value {
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.profile-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+.profile-chart {
+  margin-bottom: 2rem;
+}
+
+.profile-chart-title {
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.chart-tooltip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.chart-tooltip p {
+  margin: 0;
+}
+
+/* ── attempts table ─────────────────────────────── */
+
+.profile-recent {
+  margin-bottom: 2rem;
+}
+
+.attempts-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.attempts-table th {
+  color: var(--text-faint);
+  font-weight: 300;
+  text-align: left;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.attempts-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.attempt-correct td:last-child {
+  color: var(--correct);
+}
+
+.attempt-incorrect td:last-child {
+  color: var(--incorrect);
+}
+
+/* ── staff ─────────────────────────────────────── */
+
+.staff-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.staff-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.staff-line {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+}
+
+.staff-ledger {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+}
+
+.staff-clef {
+  stroke: var(--text);
+  fill: none;
+}
+
+.staff-clef-dot {
+  fill: var(--text);
+}
+
+.staff-accidental {
+  stroke: var(--text);
+}
+
+.staff-note {
+  fill: var(--text);
+  stroke: none;
+}
+
+.staff-note--root {
+  fill: var(--text);
+}
+
+.staff-note--target {
+  fill: var(--text-muted);
+}
+
+.staff-note-label {
+  fill: var(--text-faint);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+/* ── keyboard ──────────────────────────────────── */
+
+.keyboard-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.keyboard-svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.keyboard-white-key {
+  fill: var(--bg);
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  transition: fill 0.1s;
+}
+
+.keyboard-white-key:hover {
+  fill: var(--text-faint);
+  fill-opacity: 0.2;
+}
+
+.keyboard-black-key {
+  fill: var(--text);
+  stroke: var(--text-muted);
+  stroke-width: 0.5;
+  transition: fill 0.1s;
+}
+
+.keyboard-black-key:hover {
+  fill: var(--text-muted);
+}
+
+.keyboard-white-key.keyboard-key--highlighted {
+  fill: var(--text-muted);
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.keyboard-black-key.keyboard-key--highlighted {
+  fill: var(--text-faint);
+  stroke: var(--text);
+  stroke-width: 2;
+}
+
+.keyboard-white-key.keyboard-key--correct,
+.keyboard-black-key.keyboard-key--correct {
+  fill: var(--correct);
+  stroke: var(--correct);
+}
+
+.keyboard-white-key.keyboard-key--incorrect,
+.keyboard-black-key.keyboard-key--incorrect {
+  fill: var(--incorrect);
+  stroke: var(--incorrect);
+}
+
+.keyboard-label {
+  fill: var(--text);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 9px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.keyboard-label--black {
+  fill: var(--bg);
+}
+
+.keyboard-label--dim {
+  opacity: 0.4;
+}
+
+/* ── click hint ────────────────────────────────── */
+
+.click-hint {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* ── ear training ──────────────────────────────── */
+
+.ear-training-prompt {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+/* ── exercise hub categories ───────────────────── */
+
+.music-practice-hub .column h2 {
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: lowercase;
+  margin-bottom: 0.25rem;
+}
+
+/* ── responsive ────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .fretboard-svg,
+  .keyboard-svg,
+  .staff-svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .answer-btn {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .answer-row {
+    flex-wrap: wrap;
+  }
+
+  .settings-panel {
+    right: 0;
+    left: 0;
+    max-width: none;
+  }
+
+  .exercise-container {
+    padding: 0 0.5rem;
+  }
+}

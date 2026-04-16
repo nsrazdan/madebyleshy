@@ -1,0 +1,41 @@
+---
+import MusicPractice from '../../layouts/MusicPractice.astro';
+import { exercisesByCategory } from '../../components/music/lib/exercises/index';
+
+const categories = exercisesByCategory();
+const categoryOrder = ['fretboard', 'keyboard', 'staff', 'ear training'];
+---
+<MusicPractice>
+
+  <nav class="music-practice-nav">
+    <a href="/">&larr; home</a>
+  </nav>
+
+  <h1>music practice</h1>
+
+  <nav class="music-practice-hub">
+
+    <div class="column">
+      <h2>lessons</h2>
+      <a href="/music-practice/lessons/intervals-basics">intervals basics</a>
+    </div>
+
+    {categoryOrder.map(cat => {
+      const exs = categories[cat] ?? [];
+      return exs.length > 0 && (
+        <div class="column">
+          <h2>{cat}</h2>
+          {exs.map(ex => (
+            <a href={`/music-practice/exercises/${ex.id}`}>{ex.title.toLowerCase()}</a>
+          ))}
+        </div>
+      );
+    })}
+
+  </nav>
+
+  <footer class="site-footer">
+    <a class="donate-link" href="#">support this project</a>
+  </footer>
+
+</MusicPractice>

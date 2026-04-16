@@ -24,4 +24,15 @@ const shop = defineCollection({
   }),
 });
 
-export const collections = { writings, shop };
+const lessons = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    order: z.number(),
+    category: z.enum(['intervals', 'scales', 'chords', 'rhythm']),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { writings, shop, lessons };

@@ -1,0 +1,28 @@
+---
+import MusicPractice from '../../../layouts/MusicPractice.astro';
+import ExerciseRunner from '../../../components/music/ExerciseRunner';
+import { exercises, getExerciseById } from '../../../components/music/lib/exercises/index';
+
+export function getStaticPaths() {
+  return exercises.map(ex => ({
+    params: { slug: ex.id },
+    props: { title: ex.title, description: ex.description, id: ex.id },
+  }));
+}
+
+const { title, description, id } = Astro.props;
+---
+<MusicPractice
+  title={`${title.toLowerCase()} - music practice - leshy`}
+  description={description}
+>
+
+  <nav class="music-practice-nav">
+    <a href="/music-practice/exercises/">&larr; exercises</a>
+  </nav>
+
+  <h1>{title.toLowerCase()}</h1>
+
+  <ExerciseRunner client:only="react" exerciseId={id} />
+
+</MusicPractice>

@@ -1,0 +1,17 @@
+---
+import Base from './Base.astro';
+import '../styles/music-practice.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'music practice - leshy',
+  description = 'free music theory practice tools',
+} = Astro.props;
+---
+<Base title={title} description={description} bodyClass="music-practice-page">
+  <slot />
+</Base>

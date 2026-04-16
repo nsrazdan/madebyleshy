@@ -1,0 +1,19 @@
+---
+import Base from '../layouts/Base.astro';
+import '../styles/music-practice.css';
+import ProfileDashboard from '../components/music/ProfileDashboard';
+import AuthPanel from '../components/music/AuthPanel';
+---
+<Base title="profile - leshy" description="your account and progress" bodyClass="profile-page">
+
+  <nav class="profile-nav">
+    <a href="/">&larr; home</a>
+    <a href="/music-practice/">music practice</a>
+  </nav>
+
+  <h1>profile</h1>
+
+  <AuthPanel client:only="react" />
+  <ProfileDashboard client:only="react" />
+
+</Base>

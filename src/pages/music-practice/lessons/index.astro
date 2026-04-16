@@ -1,0 +1,35 @@
+---
+import MusicPractice from '../../../layouts/MusicPractice.astro';
+import { getCollection } from 'astro:content';
+
+const lessons = (await getCollection('lessons'))
+  .filter(l => !l.data.draft)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+<MusicPractice title="lessons - music practice - leshy" description="music theory lessons">
+
+  <nav class="music-practice-nav">
+    <a href="/music-practice/">&larr; music practice</a>
+  </nav>
+
+  <h1>lessons</h1>
+
+  <div class="lesson-list">
+    {lessons.map(lesson => (
+      <article>
+        <a href={`/music-practice/lessons/${lesson.slug}`}>
+          <div class="lesson-title">{lesson.data.title.toLowerCase()}</div>
+          <div class="lesson-meta">
+            <span class="lesson-category">{lesson.data.category}</span>
+          </div>
+          <div class="lesson-description">{lesson.data.description}</div>
+        </a>
+      </article>
+    ))}
+
+    {lessons.length === 0 && (
+      <p style="color: var(--text-muted);">lessons coming soon.</p>
+    )}
+  </div>
+
+</MusicPractice>

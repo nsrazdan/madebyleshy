@@ -1,0 +1,32 @@
+---
+import MusicPractice from '../../../layouts/MusicPractice.astro';
+import { exercises } from '../../../components/music/lib/exercises/index';
+---
+<MusicPractice title="exercises - music practice - leshy" description="interactive music theory exercises">
+
+  <nav class="music-practice-nav">
+    <a href="/music-practice/">&larr; music practice</a>
+  </nav>
+
+  <h1>exercises</h1>
+
+  <div class="exercise-list">
+    {exercises.map(ex => (
+      <article>
+        <a href={`/music-practice/exercises/${ex.id}`}>
+          <div class="exercise-title">{ex.title.toLowerCase()}</div>
+          <div class="exercise-meta">
+            <span class="exercise-category">{ex.category}</span>
+            <span class="exercise-difficulty">{ex.difficulty}</span>
+          </div>
+          <div class="exercise-description">{ex.description}</div>
+        </a>
+      </article>
+    ))}
+
+    {exercises.length === 0 && (
+      <p style="color: var(--text-muted);">more exercises coming soon.</p>
+    )}
+  </div>
+
+</MusicPractice>
