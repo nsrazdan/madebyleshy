@@ -7,10 +7,19 @@ import {
   type TuningPreset,
 } from './tuning-presets';
 
-// Map note index around a circle for the note wheel
-function noteAngle(noteIndex: number): number {
-  return (noteIndex / 12) * 360 - 90; // -90 so C is at top
-}
+// Precomputed note positions on the wheel (static — never changes)
+const NOTE_WHEEL_RADIUS = 80;
+const NOTE_WHEEL_CX = 120;
+const NOTE_WHEEL_CY = 120;
+
+const NOTE_POSITIONS = NOTE_NAMES.map((name, i) => {
+  const angle = ((i / 12) * 360 - 90) * (Math.PI / 180);
+  return {
+    name,
+    x: NOTE_WHEEL_CX + NOTE_WHEEL_RADIUS * Math.cos(angle),
+    y: NOTE_WHEEL_CY + NOTE_WHEEL_RADIUS * Math.sin(angle),
+  };
+});
 
 const CENTS_TICKS = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50];
 
@@ -46,35 +55,21 @@ function CentsGauge({ cents, active }: { cents: number; active: boolean }) {
 }
 
 function NoteWheel({ currentNote, active }: { currentNote: string | null; active: boolean }) {
-  const radius = 100;
-  const noteRadius = 80;
-  const cx = 120;
-  const cy = 120;
-
   return (
     <svg className="tuner-note-wheel" viewBox="0 0 240 240" width="240" height="240">
-      {/* Circle */}
-      <circle cx={cx} cy={cy} r={radius} fill="none" stroke="var(--border)" strokeWidth="1" />
-      {/* Notes around the circle */}
-      {NOTE_NAMES.map((name, i) => {
-        const angle = (noteAngle(i) * Math.PI) / 180;
-        const x = cx + noteRadius * Math.cos(angle);
-        const y = cy + noteRadius * Math.sin(angle);
-        const isCurrent = active && currentNote === name;
-
-        return (
-          <text
-            key={name}
-            x={x}
-            y={y}
-            textAnchor="middle"
-            dominantBaseline="central"
-            className={`tuner-wheel-note${isCurrent ? ' tuner-wheel-note--active' : ''}`}
-          >
-            {name}
-          </text>
-        );
-      })}
+      <circle cx={NOTE_WHEEL_CX} cy={NOTE_WHEEL_CY} r={100} fill="none" stroke="var(--border)" strokeWidth="1" />
+      {NOTE_POSITIONS.map(({ name, x, y }) => (
+        <text
+          key={name}
+          x={x}
+          y={y}
+          textAnchor="middle"
+          dominantBaseline="central"
+          className={`tuner-wheel-note${active && currentNote === name ? ' tuner-wheel-note--active' : ''}`}
+        >
+          {name}
+        </text>
+      ))}
     </svg>
   );
 }

@@ -12,7 +12,6 @@ import { useAuth } from '../AuthPanel';
 import {
   loadSetlists,
   saveSetlist,
-  deleteSetlist,
   createDefaultSetlist,
   createDefaultItem,
 } from './metronome-data';
@@ -150,7 +149,6 @@ function SetlistPanel({
   onSelectSetlist,
   onSelectItem,
   onCreateSetlist,
-  onDeleteSetlist,
   onRenameSetlist,
   onAddItem,
   onRemoveItem,
@@ -164,7 +162,6 @@ function SetlistPanel({
   onSelectSetlist: (idx: number) => void;
   onSelectItem: (idx: number) => void;
   onCreateSetlist: () => void;
-  onDeleteSetlist: (idx: number) => void;
   onRenameSetlist: (name: string) => void;
   onAddItem: () => void;
   onRemoveItem: (idx: number) => void;
@@ -314,7 +311,6 @@ export default function Metronome() {
 
   // BPM input (free-text, committed on blur/enter)
   const [bpmInput, setBpmInput] = useState(String(bpm));
-  const bpmInputDirty = useRef(false);
 
   // Visual state
   const [activeBeat, setActiveBeat] = useState(0);
@@ -450,7 +446,6 @@ export default function Metronome() {
     const clamped = Math.max(20, Math.min(200, value));
     setBpm(clamped);
     setBpmInput(String(clamped));
-    bpmInputDirty.current = false;
     engineRef.current?.updateConfig({ bpm: clamped });
   }, []);
 
@@ -461,7 +456,6 @@ export default function Metronome() {
     } else {
       setBpmInput(String(bpm));
     }
-    bpmInputDirty.current = false;
   }, [bpmInput, bpm, commitBpm]);
 
   // Tap tempo
@@ -561,15 +555,6 @@ export default function Metronome() {
     applySetlistItem(sl.items[0]);
   }, [setlists.length, applySetlistItem]);
 
-  const handleDeleteSetlist = useCallback(async (idx: number) => {
-    const sl = setlists[idx];
-    if (sl.id) await deleteSetlist(sl.id);
-    setSetlists(prev => prev.filter((_, i) => i !== idx));
-    if (activeSetlistIdx === idx) {
-      setActiveSetlistIdx(null);
-    }
-  }, [setlists, activeSetlistIdx]);
-
   const handleRenameSetlist = useCallback((name: string) => {
     if (activeSetlistIdx === null) return;
     setSetlists(prev => prev.map((sl, i) => i === activeSetlistIdx ? { ...sl, name } : sl));
@@ -632,10 +617,7 @@ export default function Metronome() {
             type="text"
             inputMode="numeric"
             value={bpmInput}
-            onChange={e => {
-              setBpmInput(e.target.value);
-              bpmInputDirty.current = true;
-            }}
+            onChange={e => setBpmInput(e.target.value)}
             onBlur={commitBpmInput}
             onKeyDown={e => {
               if (e.key === 'Enter') {
@@ -666,10 +648,10 @@ export default function Metronome() {
 
       {/* Tempo preset buttons */}
       <div className="metro-presets">
-        {TEMPO_MARKINGS.map(t => (
+        {TEMPO_MARKINGS.map((t, i) => (
           <button
             key={t.name}
-            className={`metro-btn metro-btn--preset ${bpm >= t.bpm && bpm < (TEMPO_MARKINGS[TEMPO_MARKINGS.indexOf(t) + 1]?.bpm ?? 999) ? 'metro-btn--preset-active' : ''}`}
+            className={`metro-btn metro-btn--preset ${bpm >= t.bpm && bpm < (TEMPO_MARKINGS[i + 1]?.bpm ?? 999) ? 'metro-btn--preset-active' : ''}`}
             onClick={() => commitBpm(t.bpm)}
           >
             {t.name}
@@ -910,7 +892,6 @@ export default function Metronome() {
           onSelectSetlist={handleSelectSetlist}
           onSelectItem={handleSelectItem}
           onCreateSetlist={handleCreateSetlist}
-          onDeleteSetlist={handleDeleteSetlist}
           onRenameSetlist={handleRenameSetlist}
           onAddItem={handleAddItem}
           onRemoveItem={handleRemoveItem}

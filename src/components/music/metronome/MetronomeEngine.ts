@@ -18,21 +18,18 @@ export const SYNTH_SOUNDS: { value: ClickSound; label: string }[] = [
   { value: 'tick', label: 'tick' },
 ];
 
-export const SAMPLE_SOUNDS: { value: ClickSound; label: string }[] = [
-  { value: 'mechanical', label: 'mechanical' },
-  { value: 'woodblock', label: 'woodblock' },
-  { value: 'pling', label: 'pling' },
-  { value: 'pulse', label: 'pulse' },
-  { value: 'hiclick', label: 'hi-click' },
+export const SAMPLE_SOUNDS: { value: ClickSound; label: string; file: string }[] = [
+  { value: 'mechanical', label: 'mechanical', file: '/samples/metronome/mechanical.mp3' },
+  { value: 'woodblock', label: 'woodblock', file: '/samples/metronome/woodblock.mp3' },
+  { value: 'pling', label: 'pling', file: '/samples/metronome/pling.mp3' },
+  { value: 'pulse', label: 'pulse', file: '/samples/metronome/pulse.mp3' },
+  { value: 'hiclick', label: 'hi-click', file: '/samples/metronome/hiclick.mp3' },
 ];
 
-const SAMPLE_FILES: Partial<Record<ClickSound, string>> = {
-  mechanical: '/samples/metronome/mechanical.mp3',
-  woodblock: '/samples/metronome/woodblock.mp3',
-  pling: '/samples/metronome/pling.mp3',
-  pulse: '/samples/metronome/pulse.mp3',
-  hiclick: '/samples/metronome/hiclick.mp3',
-};
+// Derived from SAMPLE_SOUNDS — single source of truth
+const SAMPLE_FILES = new Map<ClickSound, string>(
+  SAMPLE_SOUNDS.map(s => [s.value, s.file])
+);
 
 export interface MetronomeConfig {
   bpm: number;
@@ -77,11 +74,11 @@ const sampleCache = new Map<string, AudioBuffer>();
 const loadingPromises = new Map<string, Promise<AudioBuffer | null>>();
 
 export function isSampleSound(sound: ClickSound): boolean {
-  return sound in SAMPLE_FILES;
+  return SAMPLE_FILES.has(sound);
 }
 
 export async function preloadSample(sound: ClickSound): Promise<void> {
-  const file = SAMPLE_FILES[sound];
+  const file = SAMPLE_FILES.get(sound);
   if (!file || sampleCache.has(file)) return;
   if (loadingPromises.has(file)) {
     await loadingPromises.get(file);
@@ -108,7 +105,7 @@ export async function preloadSample(sound: ClickSound): Promise<void> {
 }
 
 function getSampleBuffer(sound: ClickSound): AudioBuffer | null {
-  const file = SAMPLE_FILES[sound];
+  const file = SAMPLE_FILES.get(sound);
   return file ? sampleCache.get(file) ?? null : null;
 }
 
@@ -207,6 +204,21 @@ function scheduleSineBeep(
   osc.stop(time + 0.08);
 }
 
+// Pre-generated noise buffer — created once, reused for all noise-based clicks.
+// 0.05s at 48kHz = 2400 samples. Enough for any noise click duration.
+let noiseBuffer: AudioBuffer | null = null;
+
+function getNoiseBuffer(ctx: AudioContext): AudioBuffer {
+  if (noiseBuffer && noiseBuffer.sampleRate === ctx.sampleRate) return noiseBuffer;
+  const length = Math.ceil(ctx.sampleRate * 0.05);
+  noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < length; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  return noiseBuffer;
+}
+
 function scheduleNoiseClick(
   ctx: AudioContext,
   time: number,
@@ -215,16 +227,8 @@ function scheduleNoiseClick(
   highFreq: number,
   duration: number,
 ) {
-  const sampleRate = ctx.sampleRate;
-  const length = Math.ceil(sampleRate * duration);
-  const buffer = ctx.createBuffer(1, length, sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < length; i++) {
-    data[i] = Math.random() * 2 - 1;
-  }
-
   const source = ctx.createBufferSource();
-  source.buffer = buffer;
+  source.buffer = getNoiseBuffer(ctx);
 
   const bandpass = ctx.createBiquadFilter();
   bandpass.type = 'bandpass';
