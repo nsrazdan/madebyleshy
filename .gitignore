@@ -4,3 +4,7 @@ dist/
 .DS_Store
 .env
 .env.*
+
+# Capacitor copied web assets (build artifacts)
+ios/App/App/public/
+android/app/src/main/assets/public/

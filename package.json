@@ -5,12 +5,19 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "new-post": "bash scripts/new-post.sh"
+    "new-post": "bash scripts/new-post.sh",
+    "cap:build": "astro build && npx cap sync",
+    "cap:ios": "npx cap open ios",
+    "cap:android": "npx cap open android"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.3",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
+    "@capacitor/android": "^8.3.1",
+    "@capacitor/cli": "^8.3.1",
+    "@capacitor/core": "^8.3.1",
+    "@capacitor/ios": "^8.3.1",
     "@supabase/supabase-js": "^2.103.2",
     "astro": "^5.7.10",
     "pitchy": "^4.1.0",

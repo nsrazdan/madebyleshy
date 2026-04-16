@@ -9,7 +9,7 @@ export type AccentLevel = 0 | 1 | 2 | 3;
 
 export type ClickSound =
   | 'click' | 'beep' | 'wood' | 'tick'
-  | 'mechanical' | 'woodblock' | 'pling' | 'pulse' | 'hiclick';
+  | 'mechanical' | 'woodblock' | 'pulse' | 'hiclick';
 
 export const SYNTH_SOUNDS: { value: ClickSound; label: string }[] = [
   { value: 'click', label: 'click' },
@@ -21,7 +21,6 @@ export const SYNTH_SOUNDS: { value: ClickSound; label: string }[] = [
 export const SAMPLE_SOUNDS: { value: ClickSound; label: string; file: string }[] = [
   { value: 'mechanical', label: 'mechanical', file: '/samples/metronome/mechanical.mp3' },
   { value: 'woodblock', label: 'woodblock', file: '/samples/metronome/woodblock.mp3' },
-  { value: 'pling', label: 'pling', file: '/samples/metronome/pling.mp3' },
   { value: 'pulse', label: 'pulse', file: '/samples/metronome/pulse.mp3' },
   { value: 'hiclick', label: 'hi-click', file: '/samples/metronome/hiclick.mp3' },
 ];
@@ -52,9 +51,10 @@ const LOOKAHEAD_MS = 25;
 const SCHEDULE_AHEAD = 0.1;
 
 // Click frequencies per accent level (0 is muted — no sound)
-const FREQ: Record<AccentLevel, number> = { 0: 0, 1: 800, 2: 900, 3: 1000 };
-const VOL_SCALE: Record<AccentLevel, number> = { 0: 0, 1: 0.7, 2: 0.85, 3: 1.0 };
-const SUB_FREQ = 600;
+// Wide pitch spread (600–1200 Hz) and volume spread (0.35–1.0) for clear differentiation
+const FREQ: Record<AccentLevel, number> = { 0: 0, 1: 600, 2: 900, 3: 1200 };
+const VOL_SCALE: Record<AccentLevel, number> = { 0: 0, 1: 0.35, 2: 0.65, 3: 1.0 };
+const SUB_FREQ = 500;
 
 let audioCtx: AudioContext | null = null;
 
@@ -121,11 +121,12 @@ function scheduleSound(
 ) {
   if (volume <= 0) return;
 
-  // Sample-based sounds
+  // Sample-based sounds — vary playback rate by accent for pitch differentiation
   if (isSampleSound(sound)) {
     const buffer = getSampleBuffer(sound);
     if (buffer) {
-      scheduleSampleClick(ctx, time, buffer, volume, isSub ? 0.6 : 1.0);
+      const pitchRate = isSub ? 0.6 : freq / FREQ[1];
+      scheduleSampleClick(ctx, time, buffer, volume, pitchRate);
     }
     return;
   }

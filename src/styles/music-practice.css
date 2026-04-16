@@ -1628,6 +1628,13 @@ body.music-practice-page {
   font-size: 0.8rem;
 }
 
+.tuner-mic-error {
+  color: #c53030;
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
 .tuner-cheat-hint {
   color: var(--text-faint);
   font-size: 0.75rem;

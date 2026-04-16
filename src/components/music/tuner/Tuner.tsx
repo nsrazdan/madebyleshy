@@ -112,6 +112,7 @@ export default function Tuner() {
   const [presetIndex, setPresetIndex] = useState(0);
   const [toneActive, setToneActive] = useState(false);
   const [toneNote, setToneNote] = useState<{ note: string; octave: number } | null>(null);
+  const [micError, setMicError] = useState<string | null>(null);
 
   const engineRef = useRef<TunerEngine | null>(null);
   const toneGenRef = useRef<ToneGenerator | null>(null);
@@ -143,11 +144,19 @@ export default function Tuner() {
     } else {
       const engine = new TunerEngine(onPitch, referencePitch);
       engineRef.current = engine;
+      setMicError(null);
       try {
         await engine.start();
         setListening(true);
-      } catch {
+      } catch (err: any) {
         engineRef.current = null;
+        if (err?.name === 'NotAllowedError') {
+          setMicError('microphone permission denied — check your browser or device settings');
+        } else if (err?.name === 'NotFoundError') {
+          setMicError('no microphone found on this device');
+        } else {
+          setMicError('could not access microphone');
+        }
       }
     }
   }, [listening, onPitch, referencePitch]);
@@ -234,6 +243,10 @@ export default function Tuner() {
       <button className="metro-btn metro-btn--play" onClick={toggleListening}>
         {listening ? '\u25A0 stop' : '\u25B6 start'}
       </button>
+
+      {micError && (
+        <div className="tuner-mic-error">{micError}</div>
+      )}
 
       {/* Reference pitch */}
       <div className="tuner-ref-row">
