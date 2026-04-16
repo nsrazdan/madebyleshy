@@ -1009,20 +1009,21 @@ body.music-practice-page {
 }
 
 .metro-accent-bar {
-  width: 28px;
-  height: 8px;
+  width: 36px;
+  height: 12px;
   border: 1px solid var(--border);
+  border-radius: 2px;
   background: transparent;
   transition: background 0.05s, border-color 0.05s, opacity 0.05s;
 }
 
 .metro-accent-bar--filled {
-  background: var(--text-muted);
-  border-color: var(--text-muted);
+  background: var(--text-faint);
+  border-color: var(--text-faint);
 }
 
 .metro-accent-bar--muted {
-  opacity: 0.25;
+  opacity: 0.15;
   border-color: var(--border);
   background: var(--border);
 }
@@ -1031,12 +1032,14 @@ body.music-practice-page {
 .metro-accent-bar--lit {
   background: var(--text);
   border-color: var(--text);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--text) 40%, transparent);
 }
 
 /* When globally muted (internal trainer), dim the active bars */
 .metro-accent-col--global-muted .metro-accent-bar--lit {
   background: var(--text-muted);
   border-color: var(--text-muted);
+  box-shadow: none;
   opacity: 0.5;
 }
 
@@ -1046,8 +1049,8 @@ body.music-practice-page {
 }
 
 .metro-sub-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: transparent;
@@ -1055,8 +1058,8 @@ body.music-practice-page {
 }
 
 .metro-sub-dot--active {
-  background: var(--text-muted);
-  border-color: var(--text-muted);
+  background: var(--text);
+  border-color: var(--text);
 }
 
 .metro-muted-label {
