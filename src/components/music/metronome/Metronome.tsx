@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MetronomeEngine, defaultAccents } from './MetronomeEngine';
-import type { MetronomeConfig, BeatCallback, AccentLevel } from './MetronomeEngine';
+import type { MetronomeConfig, BeatCallback, AccentLevel, ClickSound } from './MetronomeEngine';
+
+const CLICK_SOUNDS: { value: ClickSound; label: string }[] = [
+  { value: 'click', label: 'click' },
+  { value: 'beep', label: 'beep' },
+  { value: 'wood', label: 'wood' },
+  { value: 'tick', label: 'tick' },
+];
 import { useAuth } from '../AuthPanel';
 import {
   loadSetlists,
@@ -302,6 +309,7 @@ export default function Metronome() {
   const [subdivision, setSubdivision] = useState<1 | 2 | 3 | 4>(1);
   const [accents, setAccents] = useState<AccentLevel[]>(defaultAccents(4));
   const [volume, setVolume] = useState(0.75);
+  const [clickSound, setClickSound] = useState<ClickSound>('click');
   const [playing, setPlaying] = useState(false);
 
   // BPM input (free-text, committed on blur/enter)
@@ -320,8 +328,8 @@ export default function Metronome() {
 
   // Internal tempo trainer
   const [internalTrainerEnabled, setInternalTrainerEnabled] = useState(false);
-  const [itPlayBars, setItPlayBars] = useState(4);
-  const [itMuteBars, setItMuteBars] = useState(2);
+  const [itPlayBars, setItPlayBars] = useState(1);
+  const [itMuteBars, setItMuteBars] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
   // Setlists
@@ -336,7 +344,6 @@ export default function Metronome() {
   // Engine ref
   const engineRef = useRef<MetronomeEngine | null>(null);
   const barCountRef = useRef(0);
-  const beatCountRef = useRef(0);
 
   // Load setlists on login
   useEffect(() => {
@@ -346,15 +353,15 @@ export default function Metronome() {
     });
   }, [user]);
 
-  // Beat callback
-  const onBeat: BeatCallback = useCallback((beat: number, sub: number) => {
+  // Beat callback — engine reports mute state directly
+  const onBeat: BeatCallback = useCallback((beat: number, sub: number, _time: number, muted: boolean) => {
     setActiveBeat(beat);
     setActiveSub(sub);
+    setIsMuted(muted);
 
-    // Track bars for trainers (count on the downbeat of each measure)
+    // Track bars for tempo trainer
     if (beat === 0 && sub === 0) {
       barCountRef.current++;
-      beatCountRef.current = 0;
     }
   }, []);
 
@@ -379,26 +386,15 @@ export default function Metronome() {
     return () => clearInterval(interval);
   }, [playing, tempoTrainerEnabled, ttIncreaseBpm, ttEveryBars, ttTargetBpm]);
 
-  // Internal trainer effect — toggles mute on bar boundaries
+  // Sync internal trainer config to engine
   useEffect(() => {
-    if (!playing || !internalTrainerEnabled) return;
-
-    const cycleBars = itPlayBars + itMuteBars;
-
-    const interval = setInterval(() => {
-      const bars = barCountRef.current;
-      const posInCycle = bars % cycleBars;
-      const shouldMute = posInCycle >= itPlayBars;
-      setIsMuted(shouldMute);
-      engineRef.current?.setMuted(shouldMute);
-    }, 50);
-
-    return () => {
-      clearInterval(interval);
+    if (internalTrainerEnabled) {
+      engineRef.current?.setInternalTrainer({ playBars: itPlayBars, muteBars: itMuteBars });
+    } else {
+      engineRef.current?.setInternalTrainer(null);
       setIsMuted(false);
-      engineRef.current?.setMuted(false);
-    };
-  }, [playing, internalTrainerEnabled, itPlayBars, itMuteBars]);
+    }
+  }, [internalTrainerEnabled, itPlayBars, itMuteBars]);
 
   // Sync engine config when settings change during playback
   useEffect(() => {
@@ -408,8 +404,9 @@ export default function Metronome() {
       subdivision,
       accents,
       volume,
+      clickSound,
     });
-  }, [bpm, beatsPerMeasure, subdivision, accents, volume]);
+  }, [bpm, beatsPerMeasure, subdivision, accents, volume, clickSound]);
 
   // Start/Stop
   const togglePlay = useCallback(() => {
@@ -428,14 +425,18 @@ export default function Metronome() {
         subdivision,
         accents,
         volume,
+        clickSound,
       };
       const engine = new MetronomeEngine(config, onBeat);
+      if (internalTrainerEnabled) {
+        engine.setInternalTrainer({ playBars: itPlayBars, muteBars: itMuteBars });
+      }
       engineRef.current = engine;
       barCountRef.current = 0;
       engine.start();
       setPlaying(true);
     }
-  }, [playing, bpm, beatsPerMeasure, subdivision, accents, volume, onBeat]);
+  }, [playing, bpm, beatsPerMeasure, subdivision, accents, volume, clickSound, onBeat, internalTrainerEnabled, itPlayBars, itMuteBars]);
 
   // Centralized BPM setter — updates state, input display, and engine
   const commitBpm = useCallback((value: number) => {
@@ -741,7 +742,7 @@ export default function Metronome() {
         </div>
       </div>
 
-      {/* Volume */}
+      {/* Volume & sound */}
       <div className="metro-row">
         <div className="metro-group metro-group--inline">
           <label className="metro-label">volume</label>
@@ -754,8 +755,22 @@ export default function Metronome() {
             onChange={e => setVolume(+e.target.value / 100)}
           />
         </div>
-        <span className="metro-hint">click bars to set accent per beat</span>
+        <div className="metro-group metro-group--inline">
+          <label className="metro-label">sound</label>
+          <div className="metro-btn-group">
+            {CLICK_SOUNDS.map(s => (
+              <button
+                key={s.value}
+                className={`metro-btn metro-btn--toggle ${clickSound === s.value ? 'metro-btn--toggle-active' : ''}`}
+                onClick={() => setClickSound(s.value)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+      <span className="metro-hint">click bars to set accent per beat</span>
 
       {/* Settings toggle */}
       <button

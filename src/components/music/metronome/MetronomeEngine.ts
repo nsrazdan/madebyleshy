@@ -7,15 +7,24 @@
 /** Per-beat accent level: 0 = muted, 1 = normal, 2 = medium, 3 = loud */
 export type AccentLevel = 0 | 1 | 2 | 3;
 
+export type ClickSound = 'click' | 'beep' | 'wood' | 'tick';
+
 export interface MetronomeConfig {
   bpm: number;
   beatsPerMeasure: number;
   subdivision: 1 | 2 | 3 | 4;
   accents: AccentLevel[];  // one per beat; length === beatsPerMeasure
   volume: number;          // 0–1 master volume
+  clickSound: ClickSound;
 }
 
-export type BeatCallback = (beat: number, subdivision: number, time: number) => void;
+export interface InternalTrainerConfig {
+  playBars: number;
+  muteBars: number;
+}
+
+/** beat, subdivision, audioTime, isMuted (for internal trainer visual) */
+export type BeatCallback = (beat: number, subdivision: number, time: number, isMuted: boolean) => void;
 
 const LOOKAHEAD_MS = 25;
 const SCHEDULE_AHEAD = 0.1;
@@ -37,26 +46,105 @@ function getAudioContext(): AudioContext {
   return audioCtx;
 }
 
-function scheduleClick(
+// ── Click synthesis by sound type ────────────────────
+
+function scheduleClickSound(
   ctx: AudioContext,
   time: number,
   freq: number,
   volume: number,
+  sound: ClickSound,
   duration = 0.03,
 ) {
   if (volume <= 0 || freq <= 0) return;
+
+  switch (sound) {
+    case 'click':
+      scheduleSquareClick(ctx, time, freq, volume, duration);
+      break;
+    case 'beep':
+      scheduleSineBeep(ctx, time, freq, volume);
+      break;
+    case 'wood':
+      scheduleNoiseClick(ctx, time, volume, 600, 1200, 0.04);
+      break;
+    case 'tick':
+      scheduleNoiseClick(ctx, time, volume, 2000, 6000, 0.015);
+      break;
+  }
+}
+
+function scheduleSquareClick(
+  ctx: AudioContext,
+  time: number,
+  freq: number,
+  volume: number,
+  duration: number,
+) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.connect(gain);
   gain.connect(ctx.destination);
-
   osc.frequency.value = freq;
   osc.type = 'square';
   gain.gain.setValueAtTime(volume, time);
   gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
-
   osc.start(time);
   osc.stop(time + duration);
+}
+
+function scheduleSineBeep(
+  ctx: AudioContext,
+  time: number,
+  freq: number,
+  volume: number,
+) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.frequency.value = freq;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(volume * 0.8, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+  osc.start(time);
+  osc.stop(time + 0.08);
+}
+
+function scheduleNoiseClick(
+  ctx: AudioContext,
+  time: number,
+  volume: number,
+  lowFreq: number,
+  highFreq: number,
+  duration: number,
+) {
+  // Create a short noise burst
+  const sampleRate = ctx.sampleRate;
+  const length = Math.ceil(sampleRate * duration);
+  const buffer = ctx.createBuffer(1, length, sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < length; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+
+  const bandpass = ctx.createBiquadFilter();
+  bandpass.type = 'bandpass';
+  bandpass.frequency.value = (lowFreq + highFreq) / 2;
+  bandpass.Q.value = 1.5;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(volume, time);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+
+  source.connect(bandpass);
+  bandpass.connect(gain);
+  gain.connect(ctx.destination);
+  source.start(time);
+  source.stop(time + duration);
 }
 
 /** Build a default accent array: first beat loud, rest normal */
@@ -74,7 +162,9 @@ export class MetronomeEngine {
   private currentBeat = 0;
   private currentSub = 0;
 
-  // Mute control for internal tempo trainer
+  // Internal trainer — managed inside the engine for sample-accurate mute
+  private internalTrainer: InternalTrainerConfig | null = null;
+  private barCount = 0;
   private muted = false;
 
   constructor(config: MetronomeConfig, onBeat: BeatCallback) {
@@ -86,12 +176,19 @@ export class MetronomeEngine {
     return this.running;
   }
 
+  get isMuted(): boolean {
+    return this.muted;
+  }
+
   updateConfig(config: Partial<MetronomeConfig>) {
     Object.assign(this.config, config);
   }
 
-  setMuted(muted: boolean) {
-    this.muted = muted;
+  setInternalTrainer(config: InternalTrainerConfig | null) {
+    this.internalTrainer = config;
+    if (!config) {
+      this.muted = false;
+    }
   }
 
   start() {
@@ -100,6 +197,8 @@ export class MetronomeEngine {
     this.running = true;
     this.currentBeat = 0;
     this.currentSub = 0;
+    this.barCount = 0;
+    this.muted = false;
     this.nextNoteTime = ctx.currentTime + 0.05;
     this.scheduler();
   }
@@ -128,7 +227,7 @@ export class MetronomeEngine {
   }
 
   private scheduleTick(ctx: AudioContext, time: number) {
-    const { volume, subdivision, accents } = this.config;
+    const { volume, subdivision, accents, clickSound } = this.config;
     const isBeat = this.currentSub === 0;
     const accent = accents[this.currentBeat] ?? 1;
 
@@ -136,23 +235,34 @@ export class MetronomeEngine {
     const beat = this.currentBeat;
     const sub = this.currentSub;
 
+    // Update mute state on bar boundaries (beat 0, sub 0) BEFORE scheduling sound
+    if (beat === 0 && sub === 0) {
+      if (this.internalTrainer) {
+        const { playBars, muteBars } = this.internalTrainer;
+        const cycle = playBars + muteBars;
+        const posInCycle = this.barCount % cycle;
+        this.muted = posInCycle >= playBars;
+      }
+      this.barCount++;
+    }
+
+    const currentlyMuted = this.muted;
+
     const delay = Math.max(0, (time - ctx.currentTime) * 1000);
     setTimeout(() => {
-      this.onBeat(beat, sub, time);
+      this.onBeat(beat, sub, time, currentlyMuted);
     }, delay);
 
     // Don't produce sound if globally muted (internal trainer)
-    if (this.muted) return;
+    if (currentlyMuted) return;
 
     if (isBeat) {
-      // accent === 0 means muted — visual still fires but no sound
       if (accent > 0) {
-        scheduleClick(ctx, time, FREQ[accent], volume * VOL_SCALE[accent]);
+        scheduleClickSound(ctx, time, FREQ[accent], volume * VOL_SCALE[accent], clickSound);
       }
     } else if (subdivision > 1) {
-      // Subdivision clicks follow the beat's accent: muted beat = muted subs
       if (accent > 0) {
-        scheduleClick(ctx, time, SUB_FREQ, volume * 0.5, 0.02);
+        scheduleClickSound(ctx, time, SUB_FREQ, volume * 0.5, clickSound, 0.02);
       }
     }
   }
