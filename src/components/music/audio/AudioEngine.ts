@@ -1,68 +1,63 @@
 let toneModule: any = null;
 let audioStarted = false;
 
-// Synth instances per timbre (created lazily)
-const synths: Record<string, any> = {};
-const polySynths: Record<string, any> = {};
+// Sampler instances per timbre (created lazily, resolved when loaded)
+const samplerPromises: Record<string, Promise<any>> = {};
 
 // Track pending timeouts so we can cancel on new playback
 let pendingTimeouts: number[] = [];
 
-// Pre-create a native AudioContext on first user gesture so the browser
-// doesn't block Tone.js when the dynamic import finishes asynchronously.
-let nativeCtx: AudioContext | null = null;
-
 export type Timbre = 'guitar' | 'piano';
 
-const TIMBRE_CONFIG: Record<Timbre, { oscillator: any; envelope: any }> = {
-  guitar: {
-    oscillator: { type: 'triangle8' },
-    envelope: { attack: 0.005, decay: 0.4, sustain: 0.05, release: 1.2 },
-  },
-  piano: {
-    oscillator: { type: 'triangle' },
-    envelope: { attack: 0.01, decay: 0.3, sustain: 0.2, release: 0.8 },
-  },
+// Note-to-filename mappings for each instrument's samples.
+// Tone.js Sampler pitch-shifts between these anchor points.
+const PIANO_SAMPLES: Record<string, string> = {
+  A0: 'A0v8.mp3', A1: 'A1v8.mp3', A2: 'A2v8.mp3', A3: 'A3v8.mp3',
+  A4: 'A4v8.mp3', A5: 'A5v8.mp3', A6: 'A6v8.mp3', A7: 'A7v8.mp3',
+  C1: 'C1v8.mp3', C2: 'C2v8.mp3', C3: 'C3v8.mp3', C4: 'C4v8.mp3',
+  C5: 'C5v8.mp3', C6: 'C6v8.mp3', C7: 'C7v8.mp3', C8: 'C8v8.mp3',
+  'D#1': 'Ds1v8.mp3', 'D#2': 'Ds2v8.mp3', 'D#3': 'Ds3v8.mp3',
+  'D#4': 'Ds4v8.mp3', 'D#5': 'Ds5v8.mp3', 'D#6': 'Ds6v8.mp3', 'D#7': 'Ds7v8.mp3',
+  'F#1': 'Fs1v8.mp3', 'F#2': 'Fs2v8.mp3', 'F#3': 'Fs3v8.mp3',
+  'F#4': 'Fs4v8.mp3', 'F#5': 'Fs5v8.mp3', 'F#6': 'Fs6v8.mp3', 'F#7': 'Fs7v8.mp3',
 };
 
-function ensureNativeContext() {
-  if (!nativeCtx) {
-    nativeCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-  }
-  if (nativeCtx.state === 'suspended') {
-    nativeCtx.resume();
-  }
-}
+const GUITAR_SAMPLES: Record<string, string> = {
+  E2: 'E2.mp3', A2: 'A2.mp3',
+  'D#3': 'Ds3.mp3', 'G#3': 'Gs3.mp3',
+  C4: 'C4.mp3', 'D#4': 'Ds4.mp3', 'F#4': 'Fs4.mp3', A4: 'A4.mp3',
+  C5: 'C5.mp3', 'D#5': 'Ds5.mp3', 'F#5': 'Fs5.mp3', A5: 'A5.mp3',
+  C6: 'C6.mp3',
+};
 
-async function ensureLoaded() {
+const SAMPLE_CONFIG: Record<Timbre, { urls: Record<string, string>; baseUrl: string }> = {
+  piano: { urls: PIANO_SAMPLES, baseUrl: '/samples/piano/' },
+  guitar: { urls: GUITAR_SAMPLES, baseUrl: '/samples/guitar/' },
+};
+
+async function ensureTone() {
   if (!toneModule) {
     toneModule = await import('tone');
-    if (nativeCtx) {
-      toneModule.setContext(nativeCtx);
-    }
+  }
+  if (!audioStarted) {
+    await toneModule.start();
+    audioStarted = true;
   }
 }
 
-function getSynth(timbre: Timbre): any {
-  if (!synths[timbre]) {
-    const cfg = TIMBRE_CONFIG[timbre];
-    synths[timbre] = new toneModule.Synth({
-      oscillator: cfg.oscillator,
-      envelope: cfg.envelope,
-    }).toDestination();
+function loadSampler(timbre: Timbre): Promise<any> {
+  if (!samplerPromises[timbre]) {
+    const cfg = SAMPLE_CONFIG[timbre];
+    samplerPromises[timbre] = new Promise((resolve, reject) => {
+      const sampler = new toneModule.Sampler({
+        urls: cfg.urls,
+        baseUrl: cfg.baseUrl,
+        onload: () => resolve(sampler),
+        onerror: (err: any) => reject(err),
+      }).toDestination();
+    });
   }
-  return synths[timbre];
-}
-
-function getPolySynth(timbre: Timbre): any {
-  if (!polySynths[timbre]) {
-    const cfg = TIMBRE_CONFIG[timbre];
-    polySynths[timbre] = new toneModule.PolySynth(toneModule.Synth, {
-      oscillator: cfg.oscillator,
-      envelope: cfg.envelope,
-    }).toDestination();
-  }
-  return polySynths[timbre];
+  return samplerPromises[timbre];
 }
 
 /** Cancel any in-progress sequential playback */
@@ -73,32 +68,23 @@ function cancelPending() {
   pendingTimeouts = [];
 }
 
-/** Start the audio context (must be called from a user gesture) */
-export async function startAudio(): Promise<void> {
-  ensureNativeContext();
-  await ensureLoaded();
-  if (!audioStarted) {
-    await toneModule.start();
-    audioStarted = true;
-  }
-}
-
 /** Play a single note */
 export async function playNote(note: string, duration = '4n', timbre: Timbre = 'piano'): Promise<void> {
   cancelPending();
-  await startAudio();
-  getSynth(timbre).triggerAttackRelease(note, duration);
+  await ensureTone();
+  const sampler = await loadSampler(timbre);
+  sampler.triggerAttackRelease(note, duration);
 }
 
 /** Play two notes in sequence */
 export async function playInterval(note1: string, note2: string, delayMs = 500, timbre: Timbre = 'piano'): Promise<void> {
   cancelPending();
-  await startAudio();
-  const s = getSynth(timbre);
-  s.triggerAttackRelease(note1, '4n');
+  await ensureTone();
+  const sampler = await loadSampler(timbre);
+  sampler.triggerAttackRelease(note1, '4n');
   return new Promise(resolve => {
     const id = window.setTimeout(() => {
-      s.triggerAttackRelease(note2, '4n');
+      sampler.triggerAttackRelease(note2, '4n');
       resolve();
     }, delayMs);
     pendingTimeouts.push(id);
@@ -108,19 +94,20 @@ export async function playInterval(note1: string, note2: string, delayMs = 500, 
 /** Play multiple notes simultaneously */
 export async function playChord(notes: string[], duration = '2n', timbre: Timbre = 'piano'): Promise<void> {
   cancelPending();
-  await startAudio();
-  getPolySynth(timbre).triggerAttackRelease(notes, duration);
+  await ensureTone();
+  const sampler = await loadSampler(timbre);
+  sampler.triggerAttackRelease(notes, duration);
 }
 
 /** Play a sequence of notes with a delay between each */
 export async function playScale(notes: string[], delayMs = 300, timbre: Timbre = 'piano'): Promise<void> {
   cancelPending();
-  await startAudio();
-  const s = getSynth(timbre);
+  await ensureTone();
+  const sampler = await loadSampler(timbre);
   return new Promise<void>(resolve => {
     for (let i = 0; i < notes.length; i++) {
       const id = window.setTimeout(() => {
-        s.triggerAttackRelease(notes[i], '8n');
+        sampler.triggerAttackRelease(notes[i], '8n');
         if (i === notes.length - 1) resolve();
       }, i * delayMs);
       pendingTimeouts.push(id);
@@ -144,8 +131,9 @@ export async function playAudio(
 /** Clean up all audio resources */
 export function disposeAudio(): void {
   cancelPending();
-  for (const s of Object.values(synths)) s?.dispose?.();
-  for (const s of Object.values(polySynths)) s?.dispose?.();
-  Object.keys(synths).forEach(k => delete synths[k]);
-  Object.keys(polySynths).forEach(k => delete polySynths[k]);
+  for (const key of Object.keys(samplerPromises)) {
+    samplerPromises[key].then(s => s?.dispose?.()).catch(() => {});
+    delete samplerPromises[key];
+  }
+  audioStarted = false;
 }

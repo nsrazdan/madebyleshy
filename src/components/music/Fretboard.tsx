@@ -108,9 +108,9 @@ export default function Fretboard({
           return null;
         })}
 
-        {/* Strings */}
+        {/* Strings — render with high e at top, low E at bottom */}
         {Array.from({ length: strings }, (_, i) => {
-          const y = paddingTop + i * stringSpacing;
+          const y = paddingTop + (strings - 1 - i) * stringSpacing;
           const isLow = i <= 2; // E, A, D are thicker
           return (
             <g key={`string-${i}`}>
@@ -158,7 +158,7 @@ export default function Fretboard({
             const x = fret === 0
               ? paddingLeft + nutWidth / 2
               : paddingLeft + nutWidth + (fret - 1) * fretWidth + fretWidth / 2;
-            const y = paddingTop + si * stringSpacing;
+            const y = paddingTop + (strings - 1 - si) * stringSpacing;
             const highlight = highlightMap.get(`${si}-${fret}`);
             const noteClass = highlight?.className ?? '';
 

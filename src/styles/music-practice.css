@@ -900,3 +900,487 @@ body.music-practice-page {
     padding: 0 0.5rem;
   }
 }
+
+/* ── metronome ─────────────────────────────────── */
+
+.metronome-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.metro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0 3rem;
+}
+
+/* Tempo display */
+.metro-tempo-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.metro-marking {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+}
+
+.metro-bpm-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metro-bpm-input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 4rem;
+  font-family: inherit;
+  text-align: center;
+  width: 5ch;
+  -moz-appearance: textfield;
+}
+
+.metro-bpm-input::-webkit-inner-spin-button,
+.metro-bpm-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.metro-bpm-label {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* Slider */
+.metro-slider {
+  width: 100%;
+  max-width: 400px;
+  accent-color: var(--text);
+  cursor: pointer;
+}
+
+.metro-slider--small {
+  width: 80px;
+}
+
+/* Preset buttons */
+.metro-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+/* Beat indicator */
+.metro-beats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.metro-beat-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.metro-beat-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  transition: background 0.05s, border-color 0.05s;
+}
+
+.metro-beat-dot--accent {
+  border-color: var(--text-muted);
+}
+
+.metro-beat-dot--active {
+  background: var(--text);
+  border-color: var(--text);
+}
+
+.metro-beat-dot--muted.metro-beat-dot--active {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.metro-sub-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.metro-sub-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  transition: background 0.05s;
+}
+
+.metro-sub-dot--active {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+}
+
+.metro-muted-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: -1rem;
+}
+
+/* Controls row */
+.metro-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Buttons */
+.metro-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.metro-btn:hover {
+  border-color: var(--border-hover);
+}
+
+.metro-btn:focus-visible {
+  outline: 1px solid var(--text);
+  outline-offset: 2px;
+}
+
+.metro-btn--play {
+  font-size: 1rem;
+  padding: 0.75rem 2rem;
+  min-width: 120px;
+}
+
+.metro-btn--round {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metro-btn--small {
+  font-size: 0.8rem;
+  padding: 0.35rem 0.75rem;
+}
+
+.metro-btn--icon {
+  border: none;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+}
+
+.metro-btn--toggle {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.metro-btn--toggle-active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+.metro-btn--preset {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.metro-btn--preset-active {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+/* Layout helpers */
+.metro-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.metro-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.metro-group--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metro-btn-group {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.metro-label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.metro-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.metro-checkbox input[type="checkbox"] {
+  accent-color: var(--text);
+}
+
+/* Inputs */
+.metro-input {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  width: 100%;
+}
+
+.metro-input--small {
+  width: 4ch;
+  text-align: center;
+}
+
+.metro-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+}
+
+/* Settings toggle */
+.metro-settings-toggle {
+  color: var(--text-muted);
+  border-color: transparent;
+}
+
+.metro-settings-toggle:hover {
+  color: var(--text);
+}
+
+/* Trainers */
+.metro-trainers {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.metro-trainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metro-trainer-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.metro-trainer-fields label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Setlist panel */
+.metro-setlist-panel {
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.metro-setlist-panel h3 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
+
+.metro-setlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.metro-setlist-header h3 {
+  margin: 0;
+}
+
+.metro-setlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.metro-setlist-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.metro-setlist-btn:hover {
+  border-color: var(--border-hover);
+}
+
+.metro-setlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.metro-setlist-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--border);
+  padding: 0.25rem;
+}
+
+.metro-setlist-item--active {
+  border-color: var(--text-muted);
+}
+
+.metro-setlist-item-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.metro-setlist-item-name {
+  color: var(--text);
+}
+
+.metro-setlist-item-meta {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.metro-setlist-item-edit {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.metro-setlist-item-edit label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.metro-setlist-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Hints */
+.metro-hints {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--text-faint);
+  font-size: 0.75rem;
+}
+
+.metro-hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .metro-bpm-input {
+    font-size: 3rem;
+  }
+
+  .metro-presets {
+    gap: 0.3rem;
+  }
+
+  .metro-btn--preset {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .metro-row {
+    gap: 1rem;
+  }
+
+  .metro-hints {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}

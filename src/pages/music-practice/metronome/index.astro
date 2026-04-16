@@ -1,0 +1,17 @@
+---
+import MusicPractice from '../../../layouts/MusicPractice.astro';
+import Metronome from '../../../components/music/metronome/Metronome';
+---
+<MusicPractice title="metronome - music practice - leshy" description="free online metronome with tempo trainer and setlists">
+
+  <nav class="music-practice-nav">
+    <a href="/music-practice/">&larr; music practice</a>
+  </nav>
+
+  <h1>metronome</h1>
+
+  <div class="metronome-page">
+    <Metronome client:only="react" />
+  </div>
+
+</MusicPractice>
