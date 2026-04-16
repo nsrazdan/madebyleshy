@@ -7,7 +7,32 @@
 /** Per-beat accent level: 0 = muted, 1 = normal, 2 = medium, 3 = loud */
 export type AccentLevel = 0 | 1 | 2 | 3;
 
-export type ClickSound = 'click' | 'beep' | 'wood' | 'tick';
+export type ClickSound =
+  | 'click' | 'beep' | 'wood' | 'tick'
+  | 'mechanical' | 'woodblock' | 'pling' | 'pulse' | 'hiclick';
+
+export const SYNTH_SOUNDS: { value: ClickSound; label: string }[] = [
+  { value: 'click', label: 'click' },
+  { value: 'beep', label: 'beep' },
+  { value: 'wood', label: 'wood' },
+  { value: 'tick', label: 'tick' },
+];
+
+export const SAMPLE_SOUNDS: { value: ClickSound; label: string }[] = [
+  { value: 'mechanical', label: 'mechanical' },
+  { value: 'woodblock', label: 'woodblock' },
+  { value: 'pling', label: 'pling' },
+  { value: 'pulse', label: 'pulse' },
+  { value: 'hiclick', label: 'hi-click' },
+];
+
+const SAMPLE_FILES: Partial<Record<ClickSound, string>> = {
+  mechanical: '/samples/metronome/mechanical.mp3',
+  woodblock: '/samples/metronome/woodblock.mp3',
+  pling: '/samples/metronome/pling.mp3',
+  pulse: '/samples/metronome/pulse.mp3',
+  hiclick: '/samples/metronome/hiclick.mp3',
+};
 
 export interface MetronomeConfig {
   bpm: number;
@@ -46,21 +71,73 @@ function getAudioContext(): AudioContext {
   return audioCtx;
 }
 
-// ── Click synthesis by sound type ────────────────────
+// ── Sample buffer cache ─────────────────────────────
 
-function scheduleClickSound(
+const sampleCache = new Map<string, AudioBuffer>();
+const loadingPromises = new Map<string, Promise<AudioBuffer | null>>();
+
+export function isSampleSound(sound: ClickSound): boolean {
+  return sound in SAMPLE_FILES;
+}
+
+export async function preloadSample(sound: ClickSound): Promise<void> {
+  const file = SAMPLE_FILES[sound];
+  if (!file || sampleCache.has(file)) return;
+  if (loadingPromises.has(file)) {
+    await loadingPromises.get(file);
+    return;
+  }
+
+  const promise = (async () => {
+    try {
+      const ctx = getAudioContext();
+      const resp = await fetch(file);
+      const arrayBuf = await resp.arrayBuffer();
+      const audioBuf = await ctx.decodeAudioData(arrayBuf);
+      sampleCache.set(file, audioBuf);
+      return audioBuf;
+    } catch {
+      return null;
+    } finally {
+      loadingPromises.delete(file);
+    }
+  })();
+
+  loadingPromises.set(file, promise);
+  await promise;
+}
+
+function getSampleBuffer(sound: ClickSound): AudioBuffer | null {
+  const file = SAMPLE_FILES[sound];
+  return file ? sampleCache.get(file) ?? null : null;
+}
+
+// ── Click scheduling ────────────────────────────────
+
+function scheduleSound(
   ctx: AudioContext,
   time: number,
   freq: number,
   volume: number,
   sound: ClickSound,
-  duration = 0.03,
+  isSub: boolean,
 ) {
-  if (volume <= 0 || freq <= 0) return;
+  if (volume <= 0) return;
 
+  // Sample-based sounds
+  if (isSampleSound(sound)) {
+    const buffer = getSampleBuffer(sound);
+    if (buffer) {
+      scheduleSampleClick(ctx, time, buffer, volume, isSub ? 0.6 : 1.0);
+    }
+    return;
+  }
+
+  // Synthesized sounds
+  if (freq <= 0) return;
   switch (sound) {
     case 'click':
-      scheduleSquareClick(ctx, time, freq, volume, duration);
+      scheduleSquareClick(ctx, time, freq, volume, 0.03);
       break;
     case 'beep':
       scheduleSineBeep(ctx, time, freq, volume);
@@ -72,6 +149,25 @@ function scheduleClickSound(
       scheduleNoiseClick(ctx, time, volume, 2000, 6000, 0.015);
       break;
   }
+}
+
+function scheduleSampleClick(
+  ctx: AudioContext,
+  time: number,
+  buffer: AudioBuffer,
+  volume: number,
+  pitchRate: number,
+) {
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.playbackRate.value = pitchRate;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(volume, time);
+
+  source.connect(gain);
+  gain.connect(ctx.destination);
+  source.start(time);
 }
 
 function scheduleSquareClick(
@@ -119,7 +215,6 @@ function scheduleNoiseClick(
   highFreq: number,
   duration: number,
 ) {
-  // Create a short noise burst
   const sampleRate = ctx.sampleRate;
   const length = Math.ceil(sampleRate * duration);
   const buffer = ctx.createBuffer(1, length, sampleRate);
@@ -258,11 +353,11 @@ export class MetronomeEngine {
 
     if (isBeat) {
       if (accent > 0) {
-        scheduleClickSound(ctx, time, FREQ[accent], volume * VOL_SCALE[accent], clickSound);
+        scheduleSound(ctx, time, FREQ[accent], volume * VOL_SCALE[accent], clickSound, false);
       }
     } else if (subdivision > 1) {
       if (accent > 0) {
-        scheduleClickSound(ctx, time, SUB_FREQ, volume * 0.5, clickSound, 0.02);
+        scheduleSound(ctx, time, SUB_FREQ, volume * 0.5, clickSound, true);
       }
     }
   }

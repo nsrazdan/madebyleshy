@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MetronomeEngine, defaultAccents } from './MetronomeEngine';
+import {
+  MetronomeEngine,
+  defaultAccents,
+  SYNTH_SOUNDS,
+  SAMPLE_SOUNDS,
+  isSampleSound,
+  preloadSample,
+} from './MetronomeEngine';
 import type { MetronomeConfig, BeatCallback, AccentLevel, ClickSound } from './MetronomeEngine';
-
-const CLICK_SOUNDS: { value: ClickSound; label: string }[] = [
-  { value: 'click', label: 'click' },
-  { value: 'beep', label: 'beep' },
-  { value: 'wood', label: 'wood' },
-  { value: 'tick', label: 'tick' },
-];
 import { useAuth } from '../AuthPanel';
 import {
   loadSetlists,
@@ -309,7 +309,7 @@ export default function Metronome() {
   const [subdivision, setSubdivision] = useState<1 | 2 | 3 | 4>(1);
   const [accents, setAccents] = useState<AccentLevel[]>(defaultAccents(4));
   const [volume, setVolume] = useState(0.75);
-  const [clickSound, setClickSound] = useState<ClickSound>('click');
+  const [clickSound, setClickSound] = useState<ClickSound>('mechanical');
   const [playing, setPlaying] = useState(false);
 
   // BPM input (free-text, committed on blur/enter)
@@ -344,6 +344,13 @@ export default function Metronome() {
   // Engine ref
   const engineRef = useRef<MetronomeEngine | null>(null);
   const barCountRef = useRef(0);
+
+  // Preload sample when sound type changes
+  useEffect(() => {
+    if (isSampleSound(clickSound)) {
+      preloadSample(clickSound);
+    }
+  }, [clickSound]);
 
   // Load setlists on login
   useEffect(() => {
@@ -755,10 +762,21 @@ export default function Metronome() {
             onChange={e => setVolume(+e.target.value / 100)}
           />
         </div>
-        <div className="metro-group metro-group--inline">
+        <div className="metro-group">
           <label className="metro-label">sound</label>
           <div className="metro-btn-group">
-            {CLICK_SOUNDS.map(s => (
+            {SAMPLE_SOUNDS.map(s => (
+              <button
+                key={s.value}
+                className={`metro-btn metro-btn--toggle ${clickSound === s.value ? 'metro-btn--toggle-active' : ''}`}
+                onClick={() => setClickSound(s.value)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div className="metro-btn-group">
+            {SYNTH_SOUNDS.map(s => (
               <button
                 key={s.value}
                 className={`metro-btn metro-btn--toggle ${clickSound === s.value ? 'metro-btn--toggle-active' : ''}`}
