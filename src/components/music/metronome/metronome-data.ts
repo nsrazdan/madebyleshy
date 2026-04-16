@@ -1,11 +1,13 @@
 import { supabase } from '../lib/supabase-client';
+import type { AccentLevel } from './MetronomeEngine';
+import { defaultAccents } from './MetronomeEngine';
 
 export interface SetlistItem {
   name: string;
   bpm: number;
   beatsPerMeasure: number;
   subdivision: 1 | 2 | 3 | 4;
-  accentFirst: boolean;
+  accents: AccentLevel[];
   // Tempo trainer
   tempoTrainer?: {
     enabled: boolean;
@@ -34,7 +36,7 @@ const DEFAULT_ITEM: SetlistItem = {
   bpm: 120,
   beatsPerMeasure: 4,
   subdivision: 1,
-  accentFirst: true,
+  accents: defaultAccents(4),
 };
 
 export function createDefaultItem(overrides?: Partial<SetlistItem>): SetlistItem {

@@ -4,23 +4,25 @@
  * schedules them with the AudioContext clock for sample-accurate timing.
  */
 
+/** Per-beat accent level: 0 = muted, 1 = normal, 2 = medium, 3 = loud */
+export type AccentLevel = 0 | 1 | 2 | 3;
+
 export interface MetronomeConfig {
   bpm: number;
   beatsPerMeasure: number;
-  subdivision: 1 | 2 | 3 | 4; // quarter, eighth, triplet, sixteenth
-  accentFirst: boolean;
-  volume: number;        // 0–1
-  accentVolume: number;  // 0–1
+  subdivision: 1 | 2 | 3 | 4;
+  accents: AccentLevel[];  // one per beat; length === beatsPerMeasure
+  volume: number;          // 0–1 master volume
 }
 
 export type BeatCallback = (beat: number, subdivision: number, time: number) => void;
 
-const LOOKAHEAD_MS = 25;    // How often the scheduler runs (ms)
-const SCHEDULE_AHEAD = 0.1; // How far ahead to schedule (seconds)
+const LOOKAHEAD_MS = 25;
+const SCHEDULE_AHEAD = 0.1;
 
-// Click sound frequencies
-const ACCENT_FREQ = 1000;
-const NORMAL_FREQ = 800;
+// Click frequencies per accent level (0 is muted — no sound)
+const FREQ: Record<AccentLevel, number> = { 0: 0, 1: 800, 2: 900, 3: 1000 };
+const VOL_SCALE: Record<AccentLevel, number> = { 0: 0, 1: 0.7, 2: 0.85, 3: 1.0 };
 const SUB_FREQ = 600;
 
 let audioCtx: AudioContext | null = null;
@@ -42,6 +44,7 @@ function scheduleClick(
   volume: number,
   duration = 0.03,
 ) {
+  if (volume <= 0 || freq <= 0) return;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.connect(gain);
@@ -56,13 +59,17 @@ function scheduleClick(
   osc.stop(time + duration);
 }
 
+/** Build a default accent array: first beat loud, rest normal */
+export function defaultAccents(beatsPerMeasure: number): AccentLevel[] {
+  return Array.from({ length: beatsPerMeasure }, (_, i) => (i === 0 ? 3 : 1)) as AccentLevel[];
+}
+
 export class MetronomeEngine {
   private config: MetronomeConfig;
   private onBeat: BeatCallback;
   private running = false;
   private timerID: number | null = null;
 
-  // Scheduling state
   private nextNoteTime = 0;
   private currentBeat = 0;
   private currentSub = 0;
@@ -93,7 +100,7 @@ export class MetronomeEngine {
     this.running = true;
     this.currentBeat = 0;
     this.currentSub = 0;
-    this.nextNoteTime = ctx.currentTime + 0.05; // Small delay to avoid clicks
+    this.nextNoteTime = ctx.currentTime + 0.05;
     this.scheduler();
   }
 
@@ -105,10 +112,8 @@ export class MetronomeEngine {
     }
   }
 
-  /** Duration of one subdivision tick in seconds */
   private get tickDuration(): number {
-    const beatDuration = 60 / this.config.bpm;
-    return beatDuration / this.config.subdivision;
+    return 60 / this.config.bpm / this.config.subdivision;
   }
 
   private scheduler() {
@@ -123,26 +128,32 @@ export class MetronomeEngine {
   }
 
   private scheduleTick(ctx: AudioContext, time: number) {
-    const { accentFirst, volume, accentVolume, subdivision } = this.config;
-    const isDownbeat = this.currentBeat === 0 && this.currentSub === 0;
+    const { volume, subdivision, accents } = this.config;
     const isBeat = this.currentSub === 0;
+    const accent = accents[this.currentBeat] ?? 1;
 
-    // Fire callback (for visual updates) — use setTimeout to approximate
+    // Capture beat/sub before advanceTick changes them
+    const beat = this.currentBeat;
+    const sub = this.currentSub;
+
     const delay = Math.max(0, (time - ctx.currentTime) * 1000);
     setTimeout(() => {
-      this.onBeat(this.currentBeat, this.currentSub, time);
+      this.onBeat(beat, sub, time);
     }, delay);
 
-    // Don't produce sound if muted
+    // Don't produce sound if globally muted (internal trainer)
     if (this.muted) return;
 
     if (isBeat) {
-      const isAccented = accentFirst && isDownbeat;
-      const freq = isAccented ? ACCENT_FREQ : NORMAL_FREQ;
-      const vol = isAccented ? accentVolume : volume;
-      scheduleClick(ctx, time, freq, vol);
+      // accent === 0 means muted — visual still fires but no sound
+      if (accent > 0) {
+        scheduleClick(ctx, time, FREQ[accent], volume * VOL_SCALE[accent]);
+      }
     } else if (subdivision > 1) {
-      scheduleClick(ctx, time, SUB_FREQ, volume * 0.6, 0.02);
+      // Subdivision clicks follow the beat's accent: muted beat = muted subs
+      if (accent > 0) {
+        scheduleClick(ctx, time, SUB_FREQ, volume * 0.5, 0.02);
+      }
     }
   }
 

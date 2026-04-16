@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MetronomeEngine } from './MetronomeEngine';
-import type { MetronomeConfig, BeatCallback } from './MetronomeEngine';
+import { MetronomeEngine, defaultAccents } from './MetronomeEngine';
+import type { MetronomeConfig, BeatCallback, AccentLevel } from './MetronomeEngine';
 import { useAuth } from '../AuthPanel';
 import {
   loadSetlists,
@@ -37,34 +37,57 @@ const SUBDIVISIONS: { value: 1 | 2 | 3 | 4; label: string }[] = [
   { value: 4, label: '1/16' },
 ];
 
+// ── Accent levels: 0=muted, 1=normal, 2=medium, 3=loud
+const ACCENT_CYCLE: AccentLevel[] = [1, 2, 3, 0]; // click cycles: normal→medium→loud→muted→normal
+
+function nextAccent(current: AccentLevel): AccentLevel {
+  const idx = ACCENT_CYCLE.indexOf(current);
+  return ACCENT_CYCLE[(idx + 1) % ACCENT_CYCLE.length];
+}
+
 // ── Beat Indicator ────────────────────────────────
 
 function BeatIndicator({
-  beatsPerMeasure,
+  accents,
   activeBeat,
   activeSub,
   subdivision,
   playing,
-  muted,
+  globalMuted,
+  onAccentChange,
 }: {
-  beatsPerMeasure: number;
+  accents: AccentLevel[];
   activeBeat: number;
   activeSub: number;
   subdivision: number;
   playing: boolean;
-  muted: boolean;
+  globalMuted: boolean;
+  onAccentChange: (beat: number, level: AccentLevel) => void;
 }) {
   return (
     <div className="metro-beats">
       <div className="metro-beat-row">
-        {Array.from({ length: beatsPerMeasure }, (_, i) => {
+        {accents.map((accent, i) => {
           const isActive = playing && i === activeBeat && activeSub === 0;
-          const isFirst = i === 0;
+          const isMuted = accent === 0;
           return (
             <div
               key={i}
-              className={`metro-beat-dot ${isActive ? 'metro-beat-dot--active' : ''} ${isFirst ? 'metro-beat-dot--accent' : ''} ${muted && isActive ? 'metro-beat-dot--muted' : ''}`}
-            />
+              className={`metro-accent-col ${isActive ? 'metro-accent-col--active' : ''} ${globalMuted && isActive ? 'metro-accent-col--global-muted' : ''}`}
+              onClick={() => onAccentChange(i, nextAccent(accent))}
+              title={`Beat ${i + 1}: ${['muted', 'normal', 'medium', 'loud'][accent]}`}
+            >
+              {/* 3 bars, bottom to top: bar 0 = normal, bar 1 = medium, bar 2 = loud */}
+              {[2, 1, 0].map(barIdx => {
+                const filled = accent > barIdx;
+                return (
+                  <div
+                    key={barIdx}
+                    className={`metro-accent-bar ${filled ? 'metro-accent-bar--filled' : ''} ${isMuted ? 'metro-accent-bar--muted' : ''} ${isActive && filled ? 'metro-accent-bar--lit' : ''}`}
+                  />
+                );
+              })}
+            </div>
           );
         })}
       </div>
@@ -248,14 +271,6 @@ function SetlistPanel({
                     ))}
                   </select>
                 </label>
-                <label>
-                  Accent first
-                  <input
-                    type="checkbox"
-                    checked={item.accentFirst}
-                    onChange={e => onUpdateItem(i, { ...item, accentFirst: e.target.checked })}
-                  />
-                </label>
               </div>
             )}
           </div>
@@ -285,10 +300,13 @@ export default function Metronome() {
   const [bpm, setBpm] = useState(120);
   const [beatsPerMeasure, setBeatsPerMeasure] = useState(4);
   const [subdivision, setSubdivision] = useState<1 | 2 | 3 | 4>(1);
-  const [accentFirst, setAccentFirst] = useState(true);
+  const [accents, setAccents] = useState<AccentLevel[]>(defaultAccents(4));
   const [volume, setVolume] = useState(0.75);
-  const [accentVolume, setAccentVolume] = useState(1.0);
   const [playing, setPlaying] = useState(false);
+
+  // BPM input (free-text, committed on blur/enter)
+  const [bpmInput, setBpmInput] = useState(String(bpm));
+  const bpmInputDirty = useRef(false);
 
   // Visual state
   const [activeBeat, setActiveBeat] = useState(0);
@@ -320,10 +338,6 @@ export default function Metronome() {
   const barCountRef = useRef(0);
   const beatCountRef = useRef(0);
 
-  // Trainer refs (track current bpm for tempo trainer)
-  const currentBpmRef = useRef(bpm);
-  currentBpmRef.current = bpm;
-
   // Load setlists on login
   useEffect(() => {
     if (!user) return;
@@ -353,6 +367,7 @@ export default function Metronome() {
       if (bars > 0 && bars % ttEveryBars === 0) {
         setBpm(prev => {
           const next = Math.min(prev + ttIncreaseBpm, ttTargetBpm);
+          setBpmInput(String(next));
           engineRef.current?.updateConfig({ bpm: next });
           return next;
         });
@@ -391,11 +406,10 @@ export default function Metronome() {
       bpm,
       beatsPerMeasure,
       subdivision,
-      accentFirst,
+      accents,
       volume,
-      accentVolume,
     });
-  }, [bpm, beatsPerMeasure, subdivision, accentFirst, volume, accentVolume]);
+  }, [bpm, beatsPerMeasure, subdivision, accents, volume]);
 
   // Start/Stop
   const togglePlay = useCallback(() => {
@@ -412,9 +426,8 @@ export default function Metronome() {
         bpm,
         beatsPerMeasure,
         subdivision,
-        accentFirst,
+        accents,
         volume,
-        accentVolume,
       };
       const engine = new MetronomeEngine(config, onBeat);
       engineRef.current = engine;
@@ -422,13 +435,31 @@ export default function Metronome() {
       engine.start();
       setPlaying(true);
     }
-  }, [playing, bpm, beatsPerMeasure, subdivision, accentFirst, volume, accentVolume, onBeat]);
+  }, [playing, bpm, beatsPerMeasure, subdivision, accents, volume, onBeat]);
+
+  // Centralized BPM setter — updates state, input display, and engine
+  const commitBpm = useCallback((value: number) => {
+    const clamped = Math.max(20, Math.min(200, value));
+    setBpm(clamped);
+    setBpmInput(String(clamped));
+    bpmInputDirty.current = false;
+    engineRef.current?.updateConfig({ bpm: clamped });
+  }, []);
+
+  const commitBpmInput = useCallback(() => {
+    const parsed = parseInt(bpmInput, 10);
+    if (!isNaN(parsed)) {
+      commitBpm(parsed);
+    } else {
+      setBpmInput(String(bpm));
+    }
+    bpmInputDirty.current = false;
+  }, [bpmInput, bpm, commitBpm]);
 
   // Tap tempo
   const tapTempo = useTapTempo(useCallback((tappedBpm: number) => {
-    setBpm(tappedBpm);
-    engineRef.current?.updateConfig({ bpm: tappedBpm });
-  }, []));
+    commitBpm(tappedBpm);
+  }, [commitBpm]));
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -440,7 +471,8 @@ export default function Metronome() {
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setBpm(b => {
-          const next = Math.min(300, b + 1);
+          const next = Math.min(200, b + 1);
+          setBpmInput(String(next));
           engineRef.current?.updateConfig({ bpm: next });
           return next;
         });
@@ -448,6 +480,7 @@ export default function Metronome() {
         e.preventDefault();
         setBpm(b => {
           const next = Math.max(20, b - 1);
+          setBpmInput(String(next));
           engineRef.current?.updateConfig({ bpm: next });
           return next;
         });
@@ -470,10 +503,10 @@ export default function Metronome() {
   const activeSetlist = activeSetlistIdx !== null ? setlists[activeSetlistIdx] : null;
 
   const applySetlistItem = useCallback((item: SetlistItem) => {
-    setBpm(item.bpm);
+    commitBpm(item.bpm);
     setBeatsPerMeasure(item.beatsPerMeasure);
     setSubdivision(item.subdivision);
-    setAccentFirst(item.accentFirst);
+    setAccents(item.accents ?? defaultAccents(item.beatsPerMeasure));
     if (item.tempoTrainer) {
       setTempoTrainerEnabled(item.tempoTrainer.enabled);
       setTtIncreaseBpm(item.tempoTrainer.increaseBpm);
@@ -485,14 +518,12 @@ export default function Metronome() {
       setItPlayBars(item.internalTrainer.playBars);
       setItMuteBars(item.internalTrainer.muteBars);
     }
-    // Update engine if playing
     engineRef.current?.updateConfig({
-      bpm: item.bpm,
       beatsPerMeasure: item.beatsPerMeasure,
       subdivision: item.subdivision,
-      accentFirst: item.accentFirst,
+      accents: item.accents ?? defaultAccents(item.beatsPerMeasure),
     });
-  }, []);
+  }, [commitBpm]);
 
   const handleSelectSetlist = useCallback((idx: number) => {
     if (idx < 0) {
@@ -584,33 +615,30 @@ export default function Metronome() {
         <div className="metro-bpm-row">
           <button
             className="metro-btn metro-btn--round"
-            onClick={() => {
-              const next = Math.max(20, bpm - 1);
-              setBpm(next);
-              engineRef.current?.updateConfig({ bpm: next });
-            }}
+            onClick={() => commitBpm(bpm - 1)}
           >
             {'\u2212'}
           </button>
           <input
             className="metro-bpm-input"
-            type="number"
-            min={20}
-            max={300}
-            value={bpm}
+            type="text"
+            inputMode="numeric"
+            value={bpmInput}
             onChange={e => {
-              const v = Math.max(20, Math.min(300, +e.target.value || 20));
-              setBpm(v);
-              engineRef.current?.updateConfig({ bpm: v });
+              setBpmInput(e.target.value);
+              bpmInputDirty.current = true;
+            }}
+            onBlur={commitBpmInput}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                commitBpmInput();
+                (e.target as HTMLInputElement).blur();
+              }
             }}
           />
           <button
             className="metro-btn metro-btn--round"
-            onClick={() => {
-              const next = Math.min(300, bpm + 1);
-              setBpm(next);
-              engineRef.current?.updateConfig({ bpm: next });
-            }}
+            onClick={() => commitBpm(bpm + 1)}
           >
             +
           </button>
@@ -623,13 +651,9 @@ export default function Metronome() {
         className="metro-slider"
         type="range"
         min={20}
-        max={300}
+        max={200}
         value={bpm}
-        onChange={e => {
-          const v = +e.target.value;
-          setBpm(v);
-          engineRef.current?.updateConfig({ bpm: v });
-        }}
+        onChange={e => commitBpm(+e.target.value)}
       />
 
       {/* Tempo preset buttons */}
@@ -638,24 +662,27 @@ export default function Metronome() {
           <button
             key={t.name}
             className={`metro-btn metro-btn--preset ${bpm >= t.bpm && bpm < (TEMPO_MARKINGS[TEMPO_MARKINGS.indexOf(t) + 1]?.bpm ?? 999) ? 'metro-btn--preset-active' : ''}`}
-            onClick={() => {
-              setBpm(t.bpm);
-              engineRef.current?.updateConfig({ bpm: t.bpm });
-            }}
+            onClick={() => commitBpm(t.bpm)}
           >
             {t.name}
           </button>
         ))}
       </div>
 
-      {/* Beat indicator */}
+      {/* Beat indicator with per-beat accent columns */}
       <BeatIndicator
-        beatsPerMeasure={beatsPerMeasure}
+        accents={accents}
         activeBeat={activeBeat}
         activeSub={activeSub}
         subdivision={subdivision}
         playing={playing}
-        muted={isMuted}
+        globalMuted={isMuted}
+        onAccentChange={(beat, level) => {
+          const next = [...accents];
+          next[beat] = level;
+          setAccents(next);
+          engineRef.current?.updateConfig({ accents: next });
+        }}
       />
 
       {/* Muted indicator */}
@@ -684,7 +711,9 @@ export default function Metronome() {
                 className={`metro-btn metro-btn--toggle ${beatsPerMeasure === n ? 'metro-btn--toggle-active' : ''}`}
                 onClick={() => {
                   setBeatsPerMeasure(n);
-                  engineRef.current?.updateConfig({ beatsPerMeasure: n });
+                  const newAccents = defaultAccents(n);
+                  setAccents(newAccents);
+                  engineRef.current?.updateConfig({ beatsPerMeasure: n, accents: newAccents });
                 }}
               >
                 {n}/4
@@ -712,18 +741,10 @@ export default function Metronome() {
         </div>
       </div>
 
-      {/* Accent & Volume */}
+      {/* Volume */}
       <div className="metro-row">
-        <label className="metro-checkbox">
-          <input
-            type="checkbox"
-            checked={accentFirst}
-            onChange={e => setAccentFirst(e.target.checked)}
-          />
-          accent first beat
-        </label>
         <div className="metro-group metro-group--inline">
-          <label className="metro-label">vol</label>
+          <label className="metro-label">volume</label>
           <input
             className="metro-slider metro-slider--small"
             type="range"
@@ -733,6 +754,7 @@ export default function Metronome() {
             onChange={e => setVolume(+e.target.value / 100)}
           />
         </div>
+        <span className="metro-hint">click bars to set accent per beat</span>
       </div>
 
       {/* Settings toggle */}

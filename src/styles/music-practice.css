@@ -990,28 +990,51 @@ body.music-practice-page {
 
 .metro-beat-row {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.metro-beat-dot {
+/* Per-beat accent column: 3 stacked bars */
+.metro-accent-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 3px;
+  transition: background 0.05s;
+}
+
+.metro-accent-col:hover {
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.metro-accent-bar {
   width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
+  height: 8px;
+  border: 1px solid var(--border);
   background: transparent;
-  transition: background 0.05s, border-color 0.05s;
+  transition: background 0.05s, border-color 0.05s, opacity 0.05s;
 }
 
-.metro-beat-dot--accent {
+.metro-accent-bar--filled {
+  background: var(--text-muted);
   border-color: var(--text-muted);
 }
 
-.metro-beat-dot--active {
+.metro-accent-bar--muted {
+  opacity: 0.25;
+  border-color: var(--border);
+  background: var(--border);
+}
+
+/* Active beat: filled bars light up bright */
+.metro-accent-bar--lit {
   background: var(--text);
   border-color: var(--text);
 }
 
-.metro-beat-dot--muted.metro-beat-dot--active {
+/* When globally muted (internal trainer), dim the active bars */
+.metro-accent-col--global-muted .metro-accent-bar--lit {
   background: var(--text-muted);
   border-color: var(--text-muted);
   opacity: 0.5;
@@ -1382,5 +1405,257 @@ body.music-practice-page {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+  }
+}
+
+/* ── tuner ──────────────────────────────────────── */
+
+.tuner-page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.tuner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0 3rem;
+}
+
+/* Note display (wheel + note name) */
+.tuner-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.tuner-note-wheel {
+  display: block;
+}
+
+.tuner-wheel-note {
+  fill: var(--text-faint);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 14px;
+  transition: fill 0.15s, font-size 0.15s;
+}
+
+.tuner-wheel-note--active {
+  fill: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.tuner-note-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  margin-top: -2rem;
+}
+
+.tuner-note-name {
+  font-size: 3.5rem;
+  color: var(--text);
+  transition: color 0.15s;
+}
+
+.tuner-note-name--in-tune {
+  color: var(--correct);
+}
+
+.tuner-octave {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+.tuner-frequency {
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+/* Cents gauge */
+.tuner-cents-gauge {
+  width: 100%;
+  max-width: 320px;
+}
+
+.tuner-cents-track {
+  position: relative;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.tuner-cents-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
+}
+
+.tuner-cents-tick--center {
+  background: var(--text-muted);
+  width: 2px;
+}
+
+.tuner-cents-needle {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  background: var(--text);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: left 0.08s ease-out, background 0.15s;
+}
+
+.tuner-cents-needle--in-tune {
+  background: var(--correct);
+}
+
+.tuner-cents-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  margin-top: 0.25rem;
+}
+
+.tuner-cents-labels span:nth-child(2) {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tuner-cents-labels {
+  position: relative;
+}
+
+/* Reference pitch row */
+.tuner-ref-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tuner-ref-label {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Tone indicator */
+.tuner-tone-indicator {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.tuner-link-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.tuner-link-btn:hover {
+  color: var(--text);
+}
+
+/* Cheat sheet section */
+.tuner-cheat-section {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.tuner-cheat-section h2 {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.tuner-preset-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tuner-cheat-sheet {
+  margin-bottom: 0.75rem;
+}
+
+.tuner-cheat-strings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tuner-cheat-string {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.tuner-cheat-string:last-child {
+  border-bottom: none;
+}
+
+.tuner-cheat-string-num {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  width: 1.5ch;
+  text-align: center;
+}
+
+.tuner-cheat-string-note {
+  color: var(--text);
+  font-size: 0.95rem;
+  width: 4ch;
+}
+
+.tuner-cheat-string-freq {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+}
+
+.tuner-cheat-hint {
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.tuner-cheat-playable {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .tuner-page {
+    padding: 0 0.5rem;
+  }
+
+  .tuner-note-name {
+    font-size: 2.5rem;
+  }
+
+  .tuner-note-wheel {
+    width: 200px;
+    height: 200px;
+  }
+
+  .tuner-note-info {
+    margin-top: -1.5rem;
   }
 }

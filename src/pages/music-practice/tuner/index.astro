@@ -1,0 +1,17 @@
+---
+import MusicPractice from '../../../layouts/MusicPractice.astro';
+import Tuner from '../../../components/music/tuner/Tuner';
+---
+<MusicPractice title="tuner - music practice - leshy" description="free online chromatic tuner with reference tones and tuning presets">
+
+  <nav class="music-practice-nav">
+    <a href="/music-practice/">&larr; music practice</a>
+  </nav>
+
+  <h1>tuner</h1>
+
+  <div class="tuner-page">
+    <Tuner client:only="react" />
+  </div>
+
+</MusicPractice>

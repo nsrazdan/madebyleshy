@@ -13,6 +13,7 @@
     "@astrojs/sitemap": "^3.7.2",
     "@supabase/supabase-js": "^2.103.2",
     "astro": "^5.7.10",
+    "pitchy": "^4.1.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "recharts": "^3.8.1",

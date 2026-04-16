@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [sitemap(), react()],
   vite: {
     optimizeDeps: {
-      include: ['tone'],
+      include: ['tone', 'pitchy'],
     },
   },
 });
